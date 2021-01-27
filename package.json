@@ -1,0 +1,48 @@
+{
+  "name": "electron-quick-start",
+  "version": "1.0.0",
+  "description": "A minimal Electron application",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --win --x64",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "build": {
+    "appId": "com.vasen.serialport",
+    "mac": {
+      "target": [
+        "dmg"
+      ]
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    }
+  },
+  "repository": "https://github.com/electron/electron-quick-start",
+  "keywords": [
+    "Electron",
+    "quick",
+    "start",
+    "tutorial",
+    "demo"
+  ],
+  "author": "GitHub",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "bootstrap": "^4.6.0",
+    "electron": "^9.0.5",
+    "electron-builder": "^22.7.0",
+    "electron-rebuild": "^1.11.0",
+    "electron-reloader": "^1.2.0",
+    "jquery": "^3.5.1",
+    "serialport": "^9.0.6"
+  },
+  "dependencies": {
+    "popper.js": "^1.14.3",
+    "serialport": "^9.0.0",
+    "ws": "^7.4.2"
+  }
+}

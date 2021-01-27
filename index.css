@@ -1,0 +1,57 @@
+.w-72 {
+    width: 18rem;
+}
+
+.inset-active-link {
+    box-shadow: inset 0.25rem 0 0 0 #805ad5;
+}
+
+.sf-box {
+    display: flex;
+    background-color: #815ad500;
+}
+
+.sf-center {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    box-sizing: content-box;
+    width: 100%;
+}
+
+.sf-button {
+    padding: 0rem;
+}
+
+#mytitle {
+    position: absolute;
+    color: #ffffff;
+    max-width: 160px;
+    font-size: 14px;
+    padding: 4px 8px;
+    background: rgba(40, 40, 40, 0.8);
+    border: solid 1px #e9f7f6;
+    border-radius: 5px;
+}
+
+.fdtitle {
+    font-size: 1.5rem;
+    /* text-align: center; */
+}
+
+.stl-exit {
+    animation: stl_blur 2s forwards;
+}
+
+@keyframes stl_blur {
+    from {
+        filter: blur(0px);
+    }
+
+    to {
+        filter: blur(10px);
+    }
+}
+
+button.siskey {
+    margin-left: 10px;
+}

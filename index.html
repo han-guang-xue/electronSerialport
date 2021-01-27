@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <title>Hello World!</title>
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+  <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="./style.css" />
+  <link rel="stylesheet" href="./index.css" />
+</head>
+
+<body style="background: white">
+  <div id="box">
+    <div class="flex text-gray-800 min-h-screen overflow-x-hidden">
+      <div class="flex-grow bg-gray-100">
+        <header class="mt-12 px-16">
+          <div class="flex items-center mb-2">
+            <h1 class="text-3xl font-semibold mr-4">十方网络科技</h1>
+            <div class="hidden lg:flex">
+              <div class="h-10 w-10 flex -ml-1 items-center justify-center bg-white rounded-full shadow">
+                <svg viewBox="0 0 168 168" class="h-6 w-6">
+                  <path fill="#1ED760"
+                    d="M83.996.277C37.747.277.253 37.77.253 84.019c0 46.251 37.494 83.741 83.743 83.741 46.254 0 83.744-37.49 83.744-83.741 0-46.246-37.49-83.738-83.745-83.738l.001-.004zm38.404 120.78a5.217 5.217 0 01-7.18 1.73c-19.662-12.01-44.414-14.73-73.564-8.07a5.222 5.222 0 01-6.249-3.93 5.213 5.213 0 013.926-6.25c31.9-7.291 59.263-4.15 81.337 9.34 2.46 1.51 3.24 4.72 1.73 7.18zm10.25-22.805c-1.89 3.075-5.91 4.045-8.98 2.155-22.51-13.839-56.823-17.846-83.448-9.764-3.453 1.043-7.1-.903-8.148-4.35a6.538 6.538 0 014.354-8.143c30.413-9.228 68.222-4.758 94.072 11.127 3.07 1.89 4.04 5.91 2.15 8.976v-.001zm.88-23.744c-26.99-16.031-71.52-17.505-97.289-9.684-4.138 1.255-8.514-1.081-9.768-5.219a7.835 7.835 0 015.221-9.771c29.581-8.98 78.756-7.245 109.83 11.202a7.823 7.823 0 012.74 10.733c-2.2 3.722-7.02 4.949-10.73 2.739z" />
+                </svg>
+              </div>
+            </div>
+            <div class="ml-auto flex items-center space-x-3">
+              <button class="p-2 text-gray-600 relative bg-white rounded-full shadow siskey" title="admin"
+                data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">
+                <svg t="1611656111387" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                  xmlns="http://www.w3.org/2000/svg" p-id="5075" width="28" height="28">
+                  <path
+                    d="M700.8 349.6c-12.9-4.25-29.3 10.4-36.65 32.7-7.35 22.3-2.85 43.8 10.05 48.05s29.3-10.4 36.65-32.7c7.35-22.25 2.85-43.8-10.05-48.05zM323.85 349.6c12.9-4.25 29.3 10.4 36.65 32.7 7.35 22.3 2.85 43.8-10.05 48.05s-29.3-10.4-36.65-32.7c-7.35-22.25-2.85-43.8 10.05-48.05z"
+                    fill="#FFD7A3" p-id="5076"></path>
+                  <path
+                    d="M580.2 586.4c150.75 66.1 196 101.3 213.85 117.15 27.55 24.4 42.8 115.25 59.05 192.4H170.95c16.25-77.15 31.5-168 59.05-192.4 17.85-15.8 61.45-50.15 212.2-116.25l138-0.9z"
+                    fill="#FFDDCC" p-id="5077"></path>
+                  <path
+                    d="M580.2 586.4c150.75 66.1 195.95 101.3 213.85 117.15 27.55 24.4 42.8 115.25 59.05 192.4H170.95c16.25-77.15 31.5-168 59.05-192.4 17.85-15.8 61.45-50.15 212.2-116.25l138-0.9z"
+                    fill="#B0BEC5" p-id="5078"></path>
+                  <path d="M438.8 454.65v167.1c40.25 49.3 106.15 47.6 146.4 0V454.65c0-90.2-146.4-90.2-146.4 0z"
+                    fill="#FFD7A3" p-id="5079"></path>
+                  <path
+                    d="M438.8 454.65v111.9c27.7 20.2 54.4 31.5 73.2 31.5 18.8 0 45.5-11.3 73.2-31.5V454.65c0-90.2-146.4-90.2-146.4 0z"
+                    fill="#E9C596" p-id="5080"></path>
+                  <path
+                    d="M512 154.65c245.65 0 157.3 296.85 141.25 320.45-17.7 26.05-101.6 95.15-141.25 95.15-39.7 0-123.55-69.05-141.25-95.15C354.7 451.5 266.35 154.65 512 154.65z"
+                    fill="#FFD7A3" p-id="5081"></path>
+                  <path
+                    d="M624.3 254c14.25 77.85 49.95 70.6 47.1 161.95 19.7-144 37.15-281.05-169.75-287.9-31.1 1.2-64.95 10.05-101.25 33.1-60.25 38.25-92.35 118.6-49.35 242.1 6.55-43.55 5.7-76.9 35.65-106.5 31.35-30.85 101.85 53.05 237.6-42.75z"
+                    fill="#6D4C41" p-id="5082"></path>
+                  <path
+                    d="M511.6 658.1s102.15 24.4 102.15 30.55c0 6.2-38.85 207.25-38.85 207.25H436.2l-15.9-206.35 91.3-31.45z"
+                    fill="#B0BEC5" p-id="5083"></path>
+                  <path
+                    d="M585.2 588.6v33.2l-31.8 274.15h54.65l60.15-122.1-57.4-38.3 70.15-32.8-64.5-100.1zM438.8 588.8v33l32.1 274.15H416.25l-60.15-122.1 57.4-38.3-70.15-32.8 57.35-97.05z"
+                    fill="#ECEFF1" p-id="5084"></path>
+                  <path d="M585.2 566.55l6.4 24.9-17.9 129.6-62.1-62.95z" fill="#FFFFFF" p-id="5085"></path>
+                  <path d="M543.45 692l-17.75 27.45h-27.5L480.5 692l31.1-33.9 31.85 33.9z" fill="#0D47A1" p-id="5086">
+                  </path>
+                  <path d="M525.75 719.5l25.25 176.45H473l25.25-176.45z" fill="#1976D2" p-id="5087"></path>
+                  <path d="M438.8 566.55l-5.05 24.5 16.85 131.3 61-64.25z" fill="#FFFFFF" p-id="5088"></path>
+                  <path
+                    d="M714.05 895.95h-11.7c0.5-51.95 0.5-89.35 0.5-89.35s5.25 38.85 11.2 89.35zM309.95 895.95h11.7c-0.5-51.95-0.5-89.35-0.5-89.35s-5.25 38.85-11.2 89.35z"
+                    fill="#546E7A" p-id="5089"></path>
+                  <path d="M586.4 465.4c-49.4 17.7-106.75 14.8-148.8 0 13.7 63.2 122.55 64.75 148.8 0z" fill="#E9C596"
+                    p-id="5090"></path>
+                </svg>
+              </button>
+
+              <button class="p-2 text-gray-600 relative bg-white rounded-full shadow siskey" data-toggle="modal"
+                title="退出" data-target="#staticBackdrop">
+                <svg width="26" height="26" x="50%" y="50%" style="padding-left: 0.2rem; padding-top: 0.2rem"
+                  t="1611651280488" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                  xmlns="http://www.w3.org/2000/svg" p-id="2545">
+                  <path
+                    d="M768 640l0-128-320 0 0-128 320 0 0-128 192 192zM704 576l0 256-320 0 0 192-384-192 0-832 704 0 0 320-64 0 0-256-512 0 256 128 0 576 256 0 0-192z"
+                    p-id="2546" fill="#bfbfbf"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="flex space-x-6">
+            <div class="font-semibold">
+              <span class="text-gray-600 text-sm mr-1">设备信息</span>
+              <span class="text-blue-500">安全网关</span>
+            </div>
+            <div class="font-semibold">
+              <span class="text-gray-600 text-sm mr-1"></span>
+              <span class="text-blue-500">网关中心管理</span>
+            </div>
+          </div>
+        </header>
+        <main class="relative px-16 py-4 space-y-4">
+          <div class="flex">
+            <div class="relative flex-grow mr-8">
+              <span class="absolute top-0 left-0 mt-2 ml-4">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5 text-gray-500">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </span>
+              <input type="text" placeholder="Search" class="pl-12 pr-2 py-2 w-full font-medium bg-white rounded-lg" />
+            </div>
+            <button class="py-2 pl-6 pr-6 mr-3 flex btn btn-primary">
+              生成公私钥
+            </button>
+          </div>
+          <div class="bg-gray-200 text-center rounded-lg text-1xl text-gray-500 sf-box">
+            <div class="sf-center">
+              <table class="table table-hover">
+                <tr>
+                  <td>编号</td>
+                  <td>公钥</td>
+                  <td style="width: 200px">操作</td>
+                </tr>
+
+                <tr>
+                  <td>001</td>
+                  <td>HJDHJDJSHJXBXBXBXB.......</td>
+                  <td>
+                    <button type="button" class="btn btn-link sf-button siskey" style="padding: 0" title="生成/更换会话密钥"
+                      data-toggle="tooltip" data-placement="top">
+                      <svg t="1611662008375" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" p-id="3094" width="20" height="20">
+                        <path
+                          d="M298.666667 597.333333a85.333333 85.333333 0 0 1-85.333334-85.333333 85.333333 85.333333 0 0 1 85.333334-85.333333 85.333333 85.333333 0 0 1 85.333333 85.333333 85.333333 85.333333 0 0 1-85.333333 85.333333m241.066666-170.666666A255.573333 255.573333 0 0 0 298.666667 256a256 256 0 0 0-256 256 256 256 0 0 0 256 256 255.573333 255.573333 0 0 0 241.066666-170.666667H725.333333v170.666667h170.666667v-170.666667h85.333333v-170.666666z"
+                          fill="#1296db" p-id="3095"></path>
+                      </svg>
+                    </button>
+
+                    <button type="button" class="btn btn-link sf-button siskey" style="padding: 0" title="导出密钥表"
+                      data-toggle="tooltip" data-placement="top">
+                      <svg t="1611661926660" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" p-id="3173" width="20" height="20">
+                        <path
+                          d="M848 232v672H288V232h560m0-56H288c-30.9 0-56 25.1-56 56v672c0 30.9 25.1 56 56 56h560c30.9 0 56-25.1 56-56V232c0-30.9-25.1-56-56-56z"
+                          p-id="3174" fill="#1296db"></path>
+                        <path
+                          d="M736 120v56H288l-56 56v560h-56V120h560m0-56H176c-30.9 0-56 25.1-56 56v672c0 30.9 25.1 56 56 56h112V232h504V120c0-30.9-25.1-56-56-56z"
+                          p-id="3175" fill="#1296db"></path>
+                        <path
+                          d="M708.9 428h-280c-15.5 0-28-12.5-28-28s12.5-28 28-28h280c15.5 0 28 12.5 28 28s-12.6 28-28 28zM708.9 596h-280c-15.5 0-28-12.5-28-28s12.5-28 28-28h280c15.5 0 28 12.5 28 28s-12.6 28-28 28zM708.9 764h-280c-15.5 0-28-12.5-28-28s12.5-28 28-28h280c15.5 0 28 12.5 28 28s-12.6 28-28 28z"
+                          p-id="3176" fill="#1296db"></path>
+                      </svg>
+                    </button>
+
+                    <button type="button" class="btn btn-link sf-button siskey" style="padding: 0" title="导入/更换公钥"
+                      data-toggle="tooltip" data-placement="top">
+                      <svg t="1611662237096" class="icon" viewBox="0 0 1024 1024" version="1.1"
+                        xmlns="http://www.w3.org/2000/svg" p-id="6210" width="20" height="20">
+                        <path
+                          d="M620.916512 453.303009c121.789585 41.087185 253.754967-24.319518 294.842152-146.109102s-24.319518-253.754967-146.109102-294.906151c-121.789585-41.087185-253.818966 24.319518-294.842152 146.109102-41.087185 121.789585 24.319518 253.754967 146.109102 294.906151zM723.698473 161.020806c12.543751-37.119264 52.798953-57.150867 89.982215-44.607115 37.119264 12.543751 57.150867 52.798953 44.543117 90.046214-12.543751 37.119264-52.798953 57.150867-89.982215 44.607115-37.055265-12.543751-57.022869-52.862952-44.543117-90.046214zM499.702916 422.647617c-6.783865-7.167858-9.407813-9.535811-18.495633-5.0559l-335.225351 165.308721c-11.391774 5.695887-19.711609 3.327934-22.847547-3.071939-3.199937-6.335874-15.359695-26.815468-4.159917-32.383358l319.481664-160.700813c17.535652-8.639829 19.519613-37.31126 10.815785-54.846912 0 0-2.047959-13.951723-20.927585-27.327458-8.319835-5.951882-57.662856-8.255836-66.430682-4.671907-8.831825 3.583929-43.839131 51.710974-50.494999 51.518978-6.719867-0.255995-65.150708-30.079403-77.886455-11.199778-12.799746 18.943624-43.007147 104.445928-55.550898 110.653805-12.60775 6.207877-108.349851-41.727172-120.637607-41.85517-15.167699-0.127997-54.526919 67.58266-57.342863 85.950295l63.102748 128.893444c8.639829 17.535652 30.079403 24.767509 47.615056 16.12768l386.360337-190.460223c20.479594-10.175798 8.383834-18.751628 2.623948-26.879467zM682.163297 663.602839c-8.959822-4.095919-12.287756-5.247896-19.007623 2.303954l-247.675088 279.866449c-8.383834 9.59981-16.959664 10.559791-22.335557 5.823884-5.375893-4.671907-24.383516-19.007623-16.12768-28.351438l234.875342-269.690651c12.927744-14.591711 3.903923-41.919169-10.815785-54.846912 0 0-7.167858-12.09576-29.695411-17.343656-9.919803-2.431952-56.510879 14.143719-63.230746 20.799587-6.847864 6.655868-20.991584 64.446722-27.199461 66.814675-6.335874 2.303954-71.678578-3.199937-76.350486 19.13562-4.671907 22.399556-0.255995 112.95776-9.471812 123.453551-9.343815 10.495792-116.093697 2.431952-127.485472 6.911863-14.079721 5.631888-34.559315 84.094332-23.67953 93.694142l110.333812 102.973958c14.655709 12.927744 37.247261 11.519772 50.175005-3.071939l285.498338-322.553603c15.039702-17.215659 0.575989-20.607591-7.807845-25.919486zM980.909372 280.186443c-22.719549 137.021282-140.925205 241.851203-284.410359 241.851203-43.967128 0-85.246309-10.559791-122.557569-28.159442 34.623313 94.014135 126.845484 158.780851 231.995399 152.188982 128.253456-8.06384 225.659524-118.589648 217.595684-246.843104-2.815944-44.607115-18.623631-85.054313-42.623155-119.037639z"
+                          p-id="6211" fill="#1296db"></path>
+                      </svg>
+                    </button>
+                  </td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- 退出登录提示模态框 -->
+  <div class="modal fade" id="staticBackdrop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="fdtitle">确定退出?</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            取消
+          </button>
+          <button type="button" class="btn btn-primary exit">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 用户修改密码模态框 -->
+  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+    data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">
+            修改 admin 账户密码
+          </h5>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="form-group">
+              <label for="recipient-name" class="col-form-label">旧密码:</label>
+              <input type="password" class="form-control" id="recipient-name" placeholder="请输入旧密码" />
+            </div>
+            <div class="form-group">
+              <label for="message-text" class="col-form-label">新密码:</label>
+              <input type="password" class="form-control" id="recipient-name" placeholder="请输入新密码" />
+            </div>
+            <div class="form-group">
+              <label for="message-text" class="col-form-label">新密码:</label>
+              <input type="password" class="form-control" id="recipient-name" placeholder="再次输入新密码" />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            取消
+          </button>
+          <button type="button" class="btn btn-primary">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 登录账户密码  -->
+  <div class="modal fade" id="exampleModal1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+    data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">登录 admin 账户</h5>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div id="loggin_message"></div>
+            <div class="form-group">
+              <label for="recipient-name" class="col-form-label">密码:</label>
+              <input type="password" class="form-control logging-input" id="loggin_password" placeholder="请输入密码" />
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary loggin">确定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="./node_modules/jquery/dist/jquery.min.js"></script>
+  <script src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="./index.js"></script>
+</body>
+
+</html>
