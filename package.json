@@ -38,11 +38,11 @@
     "electron-rebuild": "^1.11.0",
     "electron-reloader": "^1.2.0",
     "jquery": "^3.5.1",
+    "nodejs-websocket": "^1.7.2",
     "serialport": "^9.0.6"
   },
   "dependencies": {
     "popper.js": "^1.14.3",
-    "serialport": "^9.0.0",
-    "ws": "^7.4.2"
+    "serialport": "^9.0.0"
   }
 }

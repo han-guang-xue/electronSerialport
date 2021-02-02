@@ -1,0 +1,11 @@
+directories:
+  output: dist
+  buildResources: build
+appId: com.vasen.serialport
+mac:
+  target:
+    - dmg
+win:
+  target:
+    - nsis
+electronVersion: 9.4.1

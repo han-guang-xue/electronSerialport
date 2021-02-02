@@ -1,0 +1,20 @@
+{
+    "LIST_PORT": "LIST_PORT",
+    "SET_PORT": "SET_PORT",
+    "SUS_PORT": "SUS_PORT",
+    "ERR_PORT": "ERR_PORT",
+    "SUS_DATA": "SUS_DATA",
+    "CON_STATUS": "CON_STATUS",
+
+    "USER_VALI": "USER_VALI",
+    "ERR_VAIL": "ERR_VAIL",
+    "SUS_VAIL": "SUS_VAIL",
+
+    "GET_ALLKEY": "SUS_VAIL",
+
+    "CODE_GENKEY": "FFFA",
+    "CODE_EXPKEY": "FFFB",
+    "CODE_GENSIK": "FFFC",
+    "CODE_EXPSIK": "FFFD",
+    "CODE_VERIUK": "FFFF"
+}
