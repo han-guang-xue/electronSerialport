@@ -1,13 +1,11 @@
 /*
  * @Author: your name
  * @Date: 2021-02-02 10:47:38
- * @LastEditTime: 2021-02-02 13:53:55
+ * @LastEditTime: 2021-02-04 13:29:03
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \electron-serialport-start\login.js
  */
-
-
 
 var ws;
 function send(data) {
@@ -45,13 +43,12 @@ function createWebscoket() {
         }
 
         if (flag === CONF.SUS_VAIL) {
-
-            ws.colse()
-
             //登录成功
             $('<div class="alert alert-success" role="alert">' +
                 '登录成功' +
                 '</div>').appendTo($("#loggin_message"))
+            send({ flag: CONF.GETTYPEWAY }) //获取窗体类型
+            ws.close()
         }
     }
 }
@@ -94,11 +91,11 @@ function appendLogin() {
     $("#password").click(() => {
         $("#loggin_message").find("div").remove();
     })
-    $("#loggin").focus(() => {
+
+    $("#loggin").click(() => {
+        //认证密码长度
         send({ flag: CONF.USER_VALI, value: $("#password").val() })
     })
-
-
 }
 
 var CONF;

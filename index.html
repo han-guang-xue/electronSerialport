@@ -27,8 +27,8 @@
             </div>
             <div class="ml-auto flex items-center space-x-3">
               <!-- 选择设备 -->
-              <button class="p-2 text-gray-600 relative bg-white rounded-full shadow siskey" data-toggle="modal"
-                title="选择串口设备" data-target="#serialDevice">
+              <button id="serialDevice" class="p-2 text-gray-600 relative bg-white rounded-full shadow siskey"
+                title="选择串口设备">
                 <svg t="1611742627397" class="icon" viewBox="0 0 1024 1024" version="1.1"
                   xmlns="http://www.w3.org/2000/svg" p-id="4888" width="25" height="25">
                   <path
@@ -40,8 +40,8 @@
                 </svg>
               </button>
 
-              <button class="p-2 text-gray-600 relative bg-white rounded-full shadow siskey" title="管理账户"
-                data-toggle="modal" data-target="#exampleModal" data-whatever="@mdo">
+              <!-- 修改密码 -->
+              <button id="btn_chp" class="p-2 text-gray-600 relative bg-white rounded-full shadow siskey" title="管理账户">
                 <svg t="1611656111387" class="icon" viewBox="0 0 1024 1024" version="1.1"
                   xmlns="http://www.w3.org/2000/svg" p-id="5075" width="28" height="28">
                   <path
@@ -83,8 +83,8 @@
                 </svg>
               </button>
 
-              <button class="p-2 text-gray-600 relative bg-white rounded-full shadow siskey" data-toggle="modal"
-                title="退出" data-target="#staticBackdrop">
+              <!-- 退出按钮 -->
+              <button id="btn_exit" class="p-2 text-gray-600 relative bg-white rounded-full shadow siskey" title="退出">
                 <svg width="26" height="26" x="50%" y="50%" style="padding-left: 0.2rem; padding-top: 0.2rem"
                   t="1611651280488" class="icon" viewBox="0 0 1024 1024" version="1.1"
                   xmlns="http://www.w3.org/2000/svg" p-id="2545">
@@ -97,34 +97,19 @@
           </div>
           <div class="flex space-x-6">
             <div class="font-semibold">
-              <span class="text-gray-600 text-sm mr-1">设备信息</span>
-              <span class="text-blue-500">安全网关</span>
-            </div>
-            <div class="font-semibold">
-              <span class="text-gray-600 text-sm mr-1"></span>
-              <span class="text-blue-500">网关中心管理</span>
+              <!-- <span class="text-gray-600 text-sm mr-1">设备信息</span> -->
+              <span class="text-blue-500" id="devmsg"></span>
             </div>
           </div>
         </header>
         <main class="relative px-16 py-4 space-y-4">
-          <div class="flex">
-            <div class="relative flex-grow mr-8">
-              <span class="absolute top-0 left-0 mt-2 ml-4">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-5 w-5 text-gray-500">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </span>
-              <input type="text" placeholder="Search" class="pl-12 pr-2 py-2 w-full font-medium bg-white rounded-lg" />
-            </div>
-            <button class="py-2 pl-6 pr-6 mr-3 flex btn btn-primary">
-              生成公私钥
+          <div class="flex" id="btns" style="flex-direction: row-reverse;">
+            <button class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-dark">
+              生成身份密钥
             </button>
           </div>
           <div class="bg-gray-200 text-center rounded-lg text-1xl text-gray-500 sf-box">
-            <div class="sf-center">
 
-            </div>
           </div>
         </main>
       </div>
@@ -133,29 +118,29 @@
 
   <!-- 退出登录提示模态框 -->
   <div class="modal fade" id="staticBackdrop" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
-    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    aria-labelledby="staticBackdropLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog">
       <div class="modal-content">
-        <div class="modal-header">
+        <!-- <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
-        </div>
+        </div> -->
         <div class="modal-body">
           <div class="fdtitle">确定退出?</div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          <button id="btn_exit_false" type="button" class="btn btn-secondary" data-dismiss="modal">
             取消
           </button>
-          <button type="button" class="btn btn-primary exit">确定</button>
+          <button id="btn_exit_true" type="button" class="btn btn-primary exit">确定</button>
         </div>
       </div>
     </div>
   </div>
 
   <!-- 用户修改密码模态框 -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+  <div class="modal fade" id="chp" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
     data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -167,28 +152,27 @@
         <div class="modal-body">
           <form>
             <div class="form-group">
-              <label for="recipient-name" class="col-form-label">旧密码:</label>
-              <input type="password" class="form-control" id="recipient-name" placeholder="请输入旧密码" />
-            </div>
-            <div class="form-group">
               <label for="message-text" class="col-form-label">新密码:</label>
-              <input type="password" class="form-control" id="recipient-name" placeholder="请输入新密码" />
+              <input id="updatePassword" type="password" class="form-control" id="recipient-name"
+                placeholder="请输入新密码" />
             </div>
-            <div class="form-group">
+            <!-- <div class="form-group">
               <label for="message-text" class="col-form-label">新密码:</label>
               <input type="password" class="form-control" id="recipient-name" placeholder="再次输入新密码" />
-            </div>
+            </div> -->
           </form>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          <button type="button" id="btn_chp_false" class="btn btn-secondary" data-dismiss="modal">
             取消
           </button>
-          <button type="button" class="btn btn-primary">确定</button>
+          <button type="button" id="btn_chp_true" class="btn btn-primary">确定</button>
         </div>
       </div>
     </div>
   </div>
+
+
 
   <script src="./node_modules/jquery/dist/jquery.min.js"></script>
   <script src="./node_modules/bootstrap/dist/js/bootstrap.min.js"></script>

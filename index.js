@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-22 11:44:12
- * @LastEditTime: 2021-02-02 14:46:59
+ * @LastEditTime: 2021-02-04 14:45:19
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\index.js
@@ -13,21 +13,58 @@ function createWebscoket() {
     ws = new WebSocket('ws://localhost:8001');
     ws.onopen = function (e) {
         console.log('客户端与服务器的连接已经打开 ! ');
-        //获取设备信息和公钥
-        send({ flag: CONF.GET_ALLKEY });
-    }
-    ws.onmessage = function (msg) {
-        const para = JSON.parse(msg.data);
-        console.log("client: ");
+        ws.onmessage = function (msg) {
+            const para = JSON.parse(msg.data);
+            console.log("client: ");
 
-        console.log(para);
-        const flag = para.flag;
+            console.log(para);
+            const flag = para.flag;
 
-        //展示所有设备信息
-        if (flag === CONF.GET_ALLKEY) {
-            appendTable();
+            //获取网关类型
+            if (flag === CONF.GETTYPEWAY) {
+                //网关中心的一些配置
+                if (para.value === CONF.DEVICE_CENTER) {
+                    $("#devmsg").text("密钥管理中心")
+                    send({ flag: CONF.GET_ALLKEY })
+                }
+                //非网关
+                if (para.value === CONF.DEVICE_SUBSET) {
+                    $('<button id="synchronouKey" class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-danger">' +
+                        '    导入密钥表' +
+                        '</button>').appendTo($("#btns"))
+                    $("#devmsg").text("安全网关")
+                }
+            }
+            //展示所有设备信息
+            if (flag === CONF.GET_ALLKEY) {
+                appendTable();
+            }
+
+            //修改密码成功
+            if (flag === CONF.CHANGE_PSS_OK) {
+                send({ flag: CONF.REBOOT })
+            }
+
+            if (flag === CONF.CHANGE_PSS_ERROR) {
+                alert("密码修改失败, 请检查设备是否连接正确! ")
+            }
+
+            if (flag === CONF.PKEYFILE_ERROR) {
+                alert("公钥文件内容格式不正确! ")
+            }
+
+            //公钥文件上传/更新成功
+            if (flag === CONF.PKEYFILE_OK) {
+                alert('操作成功')
+                $("#addkey").modal('hide');
+            }
         }
+        //判断是否是网关中心
+        send({ flag: CONF.ALREADY })
+        //获取设备信息和公钥
+        // send({ flag: CONF.GET_ALLKEY });
     }
+
 
     //保持连接状态
     setInterval(() => {
@@ -61,9 +98,52 @@ function settitle(ele) {
 
 function btnmodal() {
     //模态框退出登录
-    $(".exit").click(function (e) {
-        $("#box").addClass("stl-exit");
+    $("#serialDevice").click(() => {
+        send({ flag: CONF.REBOOT })
     })
+
+    //修改密码
+    $("#btn_chp").click(() => {
+        $("#box").addClass("stl-exit");
+        $("#chp").modal("show")
+    })
+
+    $("#btn_chp_false").click(() => {
+        $("#box").removeClass("stl-exit");
+        $("#chp").modal("hide")
+    })
+
+    $("#btn_chp_true").click(() => {
+        var uvalue = $("#updatePassword").val();
+        if (uvalue.length > 16) {
+            alert("密码长度不能大于16");
+            return;
+        }
+        send({ flag: CONF.CHANGE_PSS, value: uvalue })
+        $("#box").removeClass("stl-exit");
+        $("#chp").modal("hide")
+    })
+
+
+
+    //退出
+    $("#btn_exit").click(() => {
+        $("#box").addClass("stl-exit");
+        $("#staticBackdrop").modal('show');
+    })
+
+    $("#btn_exit_false").click(() => {
+        $("#box").removeClass("stl-exit");
+        $("#staticBackdrop").modal('hide');
+    })
+
+    $("#btn_exit_true").click(() => {
+        send({ flag: CONF.EXITBOOT })
+    })
+
+
+
+
 }
 
 function send(data) {
@@ -77,7 +157,7 @@ $(function () {
         CONF = data;
         createWebscoket();
 
-        //添加操作按钮事件
+        //添加静态按钮事件
         btnmodal();
 
         //设置tittle
@@ -86,18 +166,24 @@ $(function () {
 })
 
 function appendTable() {
+    $('<div class="sf-center"> </div>').appendTo($('.sf-box'))
+    $('<button id="update" class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-success siskey_table_btn3">' +
+        '  添加新设备' +
+        '</button>').appendTo($("#btns"))
+
     $('<table class="table table-hover">' +
         '    <tr>' +
         '        <td>编号</td>' +
-        '        <td>公钥</td>' +
-        '        <td style="width: 200px">操作</td>' +
+        '        <td>单位名称</td>' +
+        '        <td style="width: 200px">操作' +
+        '</td>' +
         '    </tr>' +
         '</table>').appendTo($(".sf-center"));
-
+    var comname = "中央大门有限公司";
     for (var i = 0; i < 10; i++) {
         $('<tr>' +
             '    <td>001</td>' +
-            '    <td>HJDHJDJSHJXBXBXBXB.......</td>' +
+            '    <td>' + comname + '</td>' +
             '    <td>' +
             '    <button type="button" class="btn btn-link sf-button siskey_table" style="padding: 0" title="生成/更换会话密钥"' +
             '        data-toggle="tooltip" data-placement="top">' +
@@ -123,7 +209,7 @@ function appendTable() {
             '            p-id="3176" fill="#1296db"></path>' +
             '        </svg>' +
             '    </button>' +
-            '    <button type="button" class="btn btn-link sf-button siskey_table" style="padding: 0" title="导入/更换公钥"' +
+            '    <button type="button" class="btn btn-link sf-button siskey_table siskey_table_btn3 updatekey" cname="' + comname + '" style="padding: 0" title="更换公钥"' +
             '        data-toggle="tooltip" data-placement="top">' +
             '        <svg t="1611662237096" class="icon" viewBox="0 0 1024 1024" version="1.1"' +
             '        xmlns="http://www.w3.org/2000/svg" p-id="6210" width="20" height="20">' +
@@ -136,4 +222,88 @@ function appendTable() {
             '</tr>').appendTo($("table"))
     }
     settitle(".siskey_table");
+
+    //添加/更新 密钥
+    $(".siskey_table_btn3").click(function () {
+        // const isp = this.classList
+        const isupdate = $(this).hasClass("updatekey")
+        var cname = "";
+        if (isupdate) {
+            cname = $(this).attr("cname")
+        }
+        $("#addkey").remove();
+        $('<div class="modal fade" id="addkey" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">' +
+            '  <div class="modal-dialog">' +
+            '      <div class="modal-content">' +
+            '      <div class="modal-header">' +
+            '          <h5 class="modal-title" id="addkeymsg">' + (isupdate ? "更新设备" : "添加设备") + '   </h5>' +
+            '          <button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+            '          <span aria-hidden="true">&times;</span>' +
+            '          </button>' +
+            '      </div>' +
+            '      <div class="modal-body">' +
+            '          <form>' +
+            '          <div class="form-group">' +
+            '              <label for="exampleFormControlInput1">公司名称 <font color="#721c24" size="2">不能超过10个字符</font> </label>' +
+            '              <input type="email" id="companyName" class="form-control" id="exampleFormControlInput1" value="' + cname + '" placeholder="填写公司名称">' +
+            '          </div>' +
+            '          <div class="form-group">' +
+            '              <label for="exampleFormControlFile1">设备公钥</label>' +
+            '              <input type="file" id="addkeyfile" class="form-control-file" id="exampleFormControlFile1">' +
+            '          </div>' +
+            '          </form>' +
+            '      </div>' +
+            '      <div class="modal-footer">' +
+            '          <button type="button" class="btn btn-secondary" data-dismiss="modal">取消</button>' +
+            '          <button type="button" id="addkey_true" class="btn btn-primary" >确认</button>' +
+            '      </div>' +
+            '      </div>' +
+            '  </div>' +
+            '</div>').appendTo($("body"))
+
+        $("#addkey").modal('show')
+
+        var verform_name = function (namevalue) {
+            $("#addkeymsg").find('font').remove()
+            if (namevalue.length > 10 || namevalue == 0) {
+                $('<font color="red" size="2">' + (namevalue == 0 ? '请输入公司名称' : '不能超过10个字符') + '</font>').appendTo($("#addkeymsg"))
+                return false
+            } else {
+                $("#addkeymsg").find('font').remove()
+                return true
+            }
+        }
+
+        var verform_file = function (path) {
+            $("#addkeymsg").find('font').remove()
+            if (!path) {
+                $('<font color="red" size="2">请上传公钥文件</font>').appendTo($("#addkeymsg"))
+                return false
+            } else {
+                if (path.split(".")[1]) {
+                    $('<font color="red" size="2">不支持' + path.split(".")[1] + '格式文件上传</font>').appendTo($("#addkeymsg"))
+                    return false
+                } else {
+                    $("#addkeymsg").find('font').remove()
+                    return true
+                }
+            }
+        }
+
+        $("#companyName").bind('input propertychange', function () {
+            verform_name(this.value);
+        })
+        var cfile; //记录当前选择文件路径
+        $("#addkeyfile").change(function () {
+            cfile = this.files[0].path;
+            verform_file(cfile)
+        })
+
+        $("#addkey_true").click(function () {
+            var cname = $("#companyName").val();
+            if (verform_file(cfile) && verform_name(cname)) {
+                send({ flag: CONF.ADD_PUBLIC_KEY, value: { cname, cfile } })
+            }
+        })
+    })
 }
