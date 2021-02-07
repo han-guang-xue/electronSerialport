@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Hello World!</title>
+  <title>十方网络 客户端</title>
   <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
   <link rel="stylesheet" href="./node_modules/bootstrap/dist/css/bootstrap.min.css" />
   <link rel="stylesheet" href="./style.css" />
@@ -104,12 +104,14 @@
         </header>
         <main class="relative px-16 py-4 space-y-4">
           <div class="flex" id="btns" style="flex-direction: row-reverse;">
-            <button class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-dark">
-              生成身份密钥
+            <button id="genPkey" class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-dark">
+              更新身份密钥
+            </button>
+            <button id="exportPKey" class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-info">
+              导出设备公钥
             </button>
           </div>
           <div class="bg-gray-200 text-center rounded-lg text-1xl text-gray-500 sf-box">
-
           </div>
         </main>
       </div>

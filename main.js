@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-02-04 14:59:43
+ * @LastEditTime: 2021-02-07 20:26:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\main.js
@@ -13,11 +13,12 @@
 // console.log('process.versions.chrome', process.versions.chrome)
 // console.log('process.env.PROCESSOR_ARCHITECTURE', process.env.PROCESSOR_ARCHITECTURE)
 
-const { app, BrowserWindow } = require('electron')
+const { app, BrowserWindow, dialog } = require('electron')
 const path = require('path')
 const ws = require('nodejs-websocket')
 const SerialPort = require('serialport');
-const fs = require("fs")
+const fs = require("fs");
+const { electron } = require('process');
 
 
 // 热加载
@@ -26,12 +27,13 @@ const fs = require("fs")
 // } catch (_) { }
 
 /** 读取配置文件 */
-const CONF = JSON.parse(fs.readFileSync('./config.json', 'utf-8'));
+const CONF = JSON.parse(fs.readFileSync('./config.json', 'utf-8'))
 
 var reboot = false
-var wintype;//网关类型
-var loginWin;
-var mainWin;
+var wintype       //网关类型
+var deviceNumber = "00"  //当前设备编号
+var loginWin
+var mainWin
 
 function createLoginWin() {
   loginWin = new BrowserWindow({
@@ -83,6 +85,13 @@ app.on('window-all-closed', () => {
   }
 })
 
+var showMessageBox = function (win, message) {
+  dialog.showMessageBox(win, {
+    type: 'info',
+    title: '提示信息',
+    message: message
+  })
+}
 
 /** 创建 webscoket 服务, 监听串口通信 并发送客户端 */
 var webconn;
@@ -95,6 +104,7 @@ function createServer() {
       curPort.write(buff, function (err) {
         setTimeout(() => {
           var res = serialPortData.toString();
+          console.log(res)
           success(res.trim())
         }, 500)
       })
@@ -119,15 +129,106 @@ function createServer() {
         operPort(para.value,
           status => {
             send({ flag: CONF.SUS_PORT })
+
+            //获取设备编号
+            csend(getbuff(CONF.CODE_GDCNUM), (res) => {
+              deviceNumber = res
+            })
           },
           err => {
             console.log(err)
+            showMessageBox(loginWin, "请检查设备 COM" + para.value + " 是否连接正确或已被其它设备连接");
             send({ flag: CONF.ERR_PORT, value: err })
           })
       }
 
+      //生成设备公私钥
+      if (flag === CONF.CODE_GENKEY) {
+        csend(getbuff(CONF.CODE_GENKEY), (res) => {
+          if (res === CONF.DEVICE_POK) {
+            showMessageBox(mainWin, "更新成功")
+          } else {
+            showMessageBox(mainWin, "更新失败")
+          }
+        })
+      }
+
+      //导入密钥表
+
+      if (flag === CONF.CODE_IMTSIK) {
+        dialog.showOpenDialog(mainWin, { title: '选择要导入的文件', properties: ['openFile'] }).then(res => {
+          if (!res.canceled) {
+            var path = res.filePaths[0]
+            if (path.indexOf("SESSIONKEY_") != -1) {
+              const content = fs.readFileSync(path, 'utf-8')
+              csend(getbuff(CONF.CODE_IMTSIK, content), res => {
+                if (res === CONF.DEVICE_POK) {
+                  showMessageBox(mainWin, "更新成功")
+                } else if (res === CONF.DEVICE_PERROR) {
+                  showMessageBox(mainWin, "更新失败")
+                } else {
+                  showMessageBox(mainWin, "更新失败, 可检查或重启设备之后尝试")
+                }
+              })
+            } else {
+              showMessageBox(mainWin, "不支持该文件类型")
+            }
+          }
+        })
+      }
+
+      //导出设备公钥
+      if (flag === CONF.CODE_EXPKEY) {
+        csend(getbuff(CONF.CODE_EXPKEY), (res) => {
+          res = covering(res, "");
+          if (res.length === 64 * 2) {
+            exitsfile(res, "PUBLICKEY", deviceNumber, (err, file) => {
+              if (err) {
+                showMessageBox(mainWin, "导出失败")
+              } else {
+                showMessageBox(mainWin, "导出成功, 文件路径:" + file)
+                dialog.showOpenDialog(mainWin, { title: '文件资源管理器', defaultPath: file, properties: ['openFile'] })
+              }
+            })
+          } else {
+            showMessageBox(mainWin, "导出失败, 请检查设备是否连接正确")
+          }
+        })
+      }
+
+
+      //生成,更换会话密钥
+      if (flag === CONF.CODE_GENSIK) {
+        csend(getbuff(CONF.CODE_GENSIK, para.value), res => {
+          if (res === CONF.DEVICE_POK) {
+            showMessageBox(mainWin, "设备 " + para.value + " 会话密钥更新成功")
+          } else if (res === CONF.DEVICE_PERROR) {
+            showMessageBox(mainWin, "操作失败")
+          } else {
+            showMessageBox(mainWin, "请检查设备是否连接")
+          }
+        })
+      }
+
+      // 导出密钥表
+      if (flag === CONF.CODE_EXPSIK) {
+        csend(getbuff(CONF.CODE_EXPSIK, para.value), res => {
+          if (res !== CONF.DEVICE_PERROR) {
+            exitsfile(covering(res, ""), "SESSIONKEY", deviceNumber, (err, file) => {
+              if (err) {
+                showMessageBox(mainWin, "导出失败")
+              } else {
+                showMessageBox(mainWin, "导出成功, 文件路径:" + file)
+              }
+            })
+          } else {
+            showMessageBox(mainWin, "导出失败, 请检查设备是否连接正确")
+          }
+        })
+      }
+
+      //验证用户登录信息
       if (flag === CONF.USER_VALI) {
-        //验证用户登录信息
         serialPortData = ''
         csend(getbuff(CONF.CODE_VERIUK, 'admin', para.value), (res) => {
           console.log(res)
@@ -137,20 +238,22 @@ function createServer() {
             wintype = res; //如果用户验证正确, 则返回网关类型
             send({ flag: CONF.SUS_VAIL })
           } else {
-            throw new Error("程序出错");
+            showMessageBox(loginWin, "设备连接失败")
           }
         })
       }
+
       //修改密码
       if (flag === CONF.CHANGE_PSS) {
         csend(getbuff(CONF.CODE_UPUPAS, para.value), (res) => {
           console.log(res)
           if (res === CONF.DEVICE_PERROR) {
+            showMessageBox(mainWin, '密码修改失败, 请检查设备是否连接正确!')
             send({ flag: CONF.CHANGE_PSS_ERROR })
           } else if (res === CONF.DEVICE_POK) {
             send({ flag: CONF.CHANGE_PSS_OK })
           } else {
-            throw new Error("程序出错");
+            showMessageBox(mainWin, "设备连接失败")
           }
         })
       }
@@ -160,9 +263,9 @@ function createServer() {
         // wintype = CONF.DEVICE_CENTER //网关中心
         // wintype = CONF.DEVICE_SUBSET //网关
         if (wintype == CONF.DEVICE_CENTER) {
-          createMainWin(1000, 800, true)
+          createMainWin(1300, 800, true)
         } else if (wintype == CONF.DEVICE_SUBSET) {
-          createMainWin(490, 300, false)
+          createMainWin(620, 300, false)
         }
       }
 
@@ -173,16 +276,17 @@ function createServer() {
         }, 1000)
       }
 
-
-
       //获取所有设备表和公钥信息
       if (flag === CONF.GET_ALLKEY) {
-        csend(getbuff(CONF.CODE_EXPSIK, (res) => {
-          console.log(res)
-        }))
-
-
-        // send({ flag: CONF.GET_ALLKEY, value: {} })
+        csend(getbuff(CONF.CODE_EXPMAI), (res) => {
+          if (res === CONF.DEVICE_PNO) {
+            send({ flag: CONF.GET_ALLKEY_FAILURE })
+          } else {
+            packdata(res = covering(res, " ").split(" "), (res) => {
+              send({ flag: CONF.GET_ALLKEY_SUCCESS, value: JSON.stringify(res) })
+            })
+          }
+        })
       }
 
       //重新启动 
@@ -199,12 +303,31 @@ function createServer() {
       if (flag === CONF.ADD_PUBLIC_KEY) {
         const cvalue = para.value
         const content = fs.readFileSync(cvalue.cfile, 'utf-8')
-        if (content.length != 64) {
+        if (content.length != 64 * 2) {
+          showMessageBox(mainWin, "公钥文件内容格式不正确!")
           send({ flag: CONF.PKEYFILE_ERROR })
         } else {
           //发送指令
-          // curPort.write()
-          send({ flag: CONF.PKEYFILE_OK })
+          var cname = cvalue.cname.split(" ").join("")
+          if (cname.length != 30 * 2) {
+            showMessageBox(mainWin, "名称只支持十个字符!")
+            return;
+          }
+          csend(getbuff(CONF.CODE_CLAIMK, cvalue.number, content, cname), res => {
+            if (res == CONF.DEVICE_POK) {
+              if (cvalue.isupdate) {
+                showMessageBox(mainWin, "更新成功!")
+              } else {
+                showMessageBox(mainWin, "添加成功!")
+              }
+              send({ flag: CONF.CODE_CLAIMK_SUCCESS })
+            } else if (res == CONF.DEVICE_PERROR) {
+              showMessageBox(mainWin, "操作失败!")
+              send({ flag: CONF.CODE_CLAIMK_FAILURE })
+            } else {
+              showMessageBox(mainWin, "请检查设备是否连接正确!")
+            }
+          })
         }
       }
     })
@@ -216,7 +339,8 @@ function createServer() {
 
 
 var curPort;
-var serialPortData = ""; //用于接收并整合串口数据
+var serialPortData = ""     //用于接收并整合串口数据
+var buffer = new ArrayBuffer()
 function operPort(port, open, fail) {
   curPort = new SerialPort('com' + port, {
     baudRate: 115200,
@@ -230,6 +354,7 @@ function operPort(port, open, fail) {
   curPort.open(function () {
     open();
     curPort.on('data', function (data) {
+      console.log(data)
       serialPortData += data
     }).on('error', fail)
   })
@@ -238,10 +363,10 @@ function operPort(port, open, fail) {
 /** 测试 */
 // operPort('3', () => {
 //   serialPortData = ''
-//   para.value.length + 'admin'.length;
-//   curPort.write("FFFF0011admin111111", 'utf-8', function (err, res) {
+//   curPort.write("FFFD000201", 'utf-8', function (err, res) {
+//     console.log(res)
 //     setTimeout(() => {
-//       console.log(serialPortData.toString('hex'))
+//       console.log(serialPortData.toString())
 //     }, 500)
 //   })
 // }, () => { })
@@ -249,11 +374,15 @@ function operPort(port, open, fail) {
 //开启webscoket
 createServer()
 
-
-console.log(getbuff(CONF.CODE_UPUPAS, '222222'))
-
-
-
+function exitsfile(msg, per, number, success) {
+  var date = new Date()
+  var cfile = app.getAppPath() + "\\result\\"
+  if (!fs.existsSync(cfile)) { fs.mkdirSync(cfile) }
+  cfile = cfile + per + "_" + date.getTime() + "_" + number
+  fs.writeFile(cfile, msg, 'utf-8', (res) => {
+    success(res, cfile)
+  })
+}
 
 function getbuff(code, ...para) {
   var len = 0;
@@ -275,7 +404,7 @@ function getbuff(code, ...para) {
 }
 
 /** 补位操作 */
-function covering(str) {
+function covering(str, inter) {
   var val = '';
   var str1 = str.split(" ")
   for (var i = 0; i < str1.length; i++) {
@@ -283,29 +412,31 @@ function covering(str) {
     if (item.length == 1) {
       item = '0' + item
     }
-    val += ' ' + item
+    val += inter + item
   }
   return val.trim()
 }
 
-/** 字符串转化十六进制 */
-function stringToHex(str, size) {
-  var val = "";
-  for (var i = 0; i < str.length; i++) {
-    if (val == "")
-      val = str.charCodeAt(i).toString(16);
-    else
-      val += " " + str.charCodeAt(i).toString(16);
-  }
+/** 封装数据对象 res eg: 1 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 2 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61 61  */
+function packdata(res, success) {
+  var cdata = []
+  var obj;
+  for (let i = 0, j = 0; i < res.length; i++) {
+    if (i % 31 === 0) {
+      obj = {}
+      obj.number = res[i]
+      obj.name = []
+    }
+    else { obj.name.push(res[i]) }
 
-  if (str.length < size) {
-    for (var i = str.length; i < size; i++) {
-      if (val == "")
-        val = '00';
-      else
-        val += " " + '00';
+    if ((i + 1) % 31 === 0) {
+      console.log(JSON.stringify(obj))
+      cdata.push(obj)
     }
   }
-
-  return val;
+  cdata.forEach(item => {
+    console.log("number:" + item.number)
+    console.log("name:" + item.name)
+  })
+  success(cdata);
 }

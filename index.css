@@ -21,7 +21,26 @@
     }  
 }
 
+#box {
+    opacity: 0;
+    
+}
 
+.boxopacity {
+    animation: anim_opcity 0.4s forwards;
+}
+
+@keyframes anim_opcity {
+    from {
+        opacity: 0.5;
+        transform: scale(0.5,0.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1,1);
+    }
+}
 .w-72 {
     width: 18rem;
 }
@@ -86,3 +105,14 @@ button.siskey_table {
     margin-left: 10px;
     
 }
+
+
+::-webkit-scrollbar{width:2px;height:2px}
+::-webkit-scrollbar-track{background: #ddd;
+    border: thin solid lightgray;
+    box-shadow: 0px 0px 2px #f6f6f6 inset;
+    -moz-box-shadow: 0px 0px 2px #f6f6f6 inset;
+    -webkit-box-shadow: 0px 0px 2px #f6f6f6 inset;
+    -o-box-shadow: 0px 0px 2px #f6f6f6 inset;}
+::-webkit-scrollbar-thumb{background: #373737;
+    border: thin solid #000;}

@@ -1,12 +1,12 @@
 /*
  * @Author: your name
  * @Date: 2021-02-02 10:47:38
- * @LastEditTime: 2021-02-04 13:29:03
+ * @LastEditTime: 2021-02-07 12:59:55
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \electron-serialport-start\login.js
  */
-
+var first = 0;
 var ws;
 function send(data) {
     ws.send(JSON.stringify(data))
@@ -27,12 +27,11 @@ function createWebscoket() {
             $("#serialDevice").modal('show');
         }
         if (flag === CONF.SUS_PORT) {
+            //串口连接成功
             appendLogin();
         }
         if (flag === CONF.ERR_PORT) {
-            //串口连接成功
-            $("#devicePortMessage").find("p").remove()
-            $("#devicePortMessage").append($("<p style='color:red;font-size:12px;'> 连接失败,请检查是否网关设备端口<br>例如win10系统:我的电脑->设备管理->系统工具->设备管理器->端口<br>可通过插拔设备查看串口显示</p>"))
+            send({ flag: CONF.LIST_PORT });
         }
 
         if (flag === CONF.ERR_VAIL) {
@@ -82,7 +81,7 @@ function appendLogin() {
         '    <div id="loggin_message"></div>' +
         '    <div class="form-group">' +
         '        <label for="recipient-name" class="col-form-label">密码:</label>' +
-        '        <input id="password" type="password" class="form-control logging-input" id="loggin_password"' +
+        '        <input  id="password" type="password" autofocus="autofocus" class="form-control logging-input" id="loggin_password"' +
         '            placeholder="请输入密码" />' +
         '    </div>' +
         '    <div class="form-group" style="margin-top:40px;"><button id="loggin" type="button" class="btn btn-primary btn-block">登录</button></div>' +

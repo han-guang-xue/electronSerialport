@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-22 11:44:12
- * @LastEditTime: 2021-02-04 14:45:19
+ * @LastEditTime: 2021-02-07 18:36:51
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\index.js
@@ -33,11 +33,20 @@ function createWebscoket() {
                         '    导入密钥表' +
                         '</button>').appendTo($("#btns"))
                     $("#devmsg").text("安全网关")
+
+                    $("#synchronouKey").click(() => {
+                        send({ flag: CONF.CODE_IMTSIK })
+                    })
                 }
+                $("#box").addClass("boxopacity");
             }
             //展示所有设备信息
-            if (flag === CONF.GET_ALLKEY) {
-                appendTable();
+            if (flag === CONF.GET_ALLKEY_SUCCESS) {
+                appendTable(CONF.GET_ALLKEY_SUCCESS, JSON.parse(para.value))
+            }
+
+            if (flag === CONF.GET_ALLKEY_FAILURE) {
+                appendTable(CONF.GET_ALLKEY_FAILURE);
             }
 
             //修改密码成功
@@ -46,17 +55,17 @@ function createWebscoket() {
             }
 
             if (flag === CONF.CHANGE_PSS_ERROR) {
-                alert("密码修改失败, 请检查设备是否连接正确! ")
+                // alert("密码修改失败, 请检查设备是否连接正确! ")
             }
 
             if (flag === CONF.PKEYFILE_ERROR) {
-                alert("公钥文件内容格式不正确! ")
+                // alert("公钥文件内容格式不正确! ")
             }
 
-            //公钥文件上传/更新成功
-            if (flag === CONF.PKEYFILE_OK) {
-                alert('操作成功')
-                $("#addkey").modal('hide');
+            if (flag === CONF.CODE_CLAIMK_SUCCESS) {
+                //更新/添加公钥成功
+                $("#addkey").modal('hide')
+                send({ flag: CONF.GET_ALLKEY })
             }
         }
         //判断是否是网关中心
@@ -141,9 +150,15 @@ function btnmodal() {
         send({ flag: CONF.EXITBOOT })
     })
 
+    //导出公钥
+    $("#exportPKey").click(function () {
+        send({ flag: CONF.CODE_EXPKEY })
+    })
 
-
-
+    //生成密钥
+    $("#genPkey").click(function () {
+        send({ flag: CONF.CODE_GENKEY })
+    })
 }
 
 function send(data) {
@@ -165,11 +180,14 @@ $(function () {
     })
 })
 
-function appendTable() {
+function appendTable(type, data) {
+    $('.sf-center').remove()
+    $('#update').remove()
+
     $('<div class="sf-center"> </div>').appendTo($('.sf-box'))
     $('<button id="update" class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-success siskey_table_btn3">' +
         '  添加新设备' +
-        '</button>').appendTo($("#btns"))
+        '</button>').prependTo($("#btns"))
 
     $('<table class="table table-hover">' +
         '    <tr>' +
@@ -178,14 +196,19 @@ function appendTable() {
         '        <td style="width: 200px">操作' +
         '</td>' +
         '    </tr>' +
-        '</table>').appendTo($(".sf-center"));
+        '</table>').appendTo($(".sf-center"))
+
+    if (type === CONF.GET_ALLKEY_FAILURE) {
+        $('<tr><td colspan="3" class="alert alert-warning" style="font-size:12px;">还没有设备, 请点击右上角按钮 <a href="#" class="alert-link">"添加新设备"</a> 添加设备</td></tr>').appendTo($('table'))
+        return
+    }
     var comname = "中央大门有限公司";
-    for (var i = 0; i < 10; i++) {
+    data.forEach(item => {
         $('<tr>' +
-            '    <td>001</td>' +
-            '    <td>' + comname + '</td>' +
+            '    <td class="number">' + item.number + '</td>' +
+            '    <td>' + UTF8ToStr(Str2Bytes(item.name)) + '</td>' +
             '    <td>' +
-            '    <button type="button" class="btn btn-link sf-button siskey_table" style="padding: 0" title="生成/更换会话密钥"' +
+            '    <button type="button" class="btn btn-link sf-button siskey_table genSissionKey" style="padding: 0" title="生成/更换会话密钥"' +
             '        data-toggle="tooltip" data-placement="top">' +
             '        <svg t="1611662008375" class="icon" viewBox="0 0 1024 1024" version="1.1"' +
             '        xmlns="http://www.w3.org/2000/svg" p-id="3094" width="20" height="20">' +
@@ -194,7 +217,7 @@ function appendTable() {
             '            fill="#1296db" p-id="3095"></path>' +
             '        </svg>' +
             '    </button>' +
-            '    <button type="button" class="btn btn-link sf-button siskey_table" style="padding: 0" title="导出密钥表"' +
+            '    <button type="button" class="btn btn-link sf-button siskey_table exportKeyTable" style="padding: 0" title="导出密钥表"' +
             '        data-toggle="tooltip" data-placement="top">' +
             '        <svg t="1611661926660" class="icon" viewBox="0 0 1024 1024" version="1.1"' +
             '        xmlns="http://www.w3.org/2000/svg" p-id="3173" width="20" height="20">' +
@@ -220,15 +243,29 @@ function appendTable() {
             '    </button>' +
             '    </td>' +
             '</tr>').appendTo($("table"))
-    }
+    })
+    $('<tr><td colspan="3" class="alert alert-light" style="font-size:12px;">共 <a href="#" class="alert-link">' + data.length + '</a> 条</td></tr>').appendTo($('table'))
     settitle(".siskey_table");
+
+    //生成,更换会话密钥
+    $(".genSissionKey").click(function () {
+        let number = $(this).parent().parent().find(".number").text();
+        send({ flag: CONF.CODE_GENSIK, value: number })
+    })
+
+    // 导出密钥表
+    $(".exportKeyTable").click(function () {
+        let number = $(this).parent().parent().find(".number").text();
+        send({ flag: CONF.CODE_EXPSIK, value: number })
+    })
 
     //添加/更新 密钥
     $(".siskey_table_btn3").click(function () {
-        // const isp = this.classList
+        let number = "FF"
         const isupdate = $(this).hasClass("updatekey")
         var cname = "";
         if (isupdate) {
+            number = $(this).parent().parent().find(".number").text();
             cname = $(this).attr("cname")
         }
         $("#addkey").remove();
@@ -264,8 +301,9 @@ function appendTable() {
         $("#addkey").modal('show')
 
         var verform_name = function (namevalue) {
+            namevalue = namevalue.split(" ")
             $("#addkeymsg").find('font').remove()
-            if (namevalue.length > 10 || namevalue == 0) {
+            if (namevalue.length > 30 || namevalue.length == 0) {
                 $('<font color="red" size="2">' + (namevalue == 0 ? '请输入公司名称' : '不能超过10个字符') + '</font>').appendTo($("#addkeymsg"))
                 return false
             } else {
@@ -291,7 +329,7 @@ function appendTable() {
         }
 
         $("#companyName").bind('input propertychange', function () {
-            verform_name(this.value);
+            verform_name(Bytes2Str(ToUTF8(this.value)));
         })
         var cfile; //记录当前选择文件路径
         $("#addkeyfile").change(function () {
@@ -300,10 +338,96 @@ function appendTable() {
         })
 
         $("#addkey_true").click(function () {
-            var cname = $("#companyName").val();
+            var cname = Bytes2Str(ToUTF8($("#companyName").val()))
             if (verform_file(cfile) && verform_name(cname)) {
-                send({ flag: CONF.ADD_PUBLIC_KEY, value: { cname, cfile } })
+                cname = overing(cname, 30, 'F')
+                send({ flag: CONF.ADD_PUBLIC_KEY, value: { isupdate, number, cname, cfile } })
             }
         })
     })
+}
+
+function overing(cname, num, ch) {
+    var len = cname.split(" ").length;
+    var val = ''
+    if (len < num) {
+        for (var i = len; i < 30; i++) {
+            val += ' ' + ch + ch
+        }
+    }
+    return cname + val
+}
+
+/** 将字符串转化为utf-8字节 */
+function ToUTF8(str) {
+    var result = new Array();
+    var k = 0;
+    for (var i = 0; i < str.length; i++) {
+        var j = encodeURI(str[i]);
+        if (j.length == 1) {
+            // 未转换的字符
+            result[k++] = j.charCodeAt(0);
+        } else {
+            // 转换成%XX形式的字符
+            var bytes = j.split("%");
+            for (var l = 1; l < bytes.length; l++) {
+                result[k++] = parseInt("0x" + bytes[l]);
+            }
+        }
+    }
+    return result;
+}
+
+/** 将 byte 字节转化成十六进制 */
+function Bytes2Str(arrBytes) {
+    var str = ""
+    for (var i = 0; i < arrBytes.length; i++) {
+        var tmp;
+        var num = arrBytes[i];
+        if (num < 0) {
+            //此处填坑，当byte因为符合位导致数值为负时候，需要对数据进行处理
+            tmp = (255 + num + 1).toString(16);
+        } else {
+            tmp = num.toString(16);
+        }
+        if (tmp.length == 1) {
+            tmp = "0" + tmp;
+        }
+        if (i > 0) {
+            str += " " + tmp;
+        } else {
+            str += tmp;
+        }
+    }
+    return str;
+}
+
+/** 将十六进制字符串转化为 byte 数组 */
+function Str2Bytes(name) {
+    var hexA = new Array();
+    name.forEach(item => {
+        if (item === 'ff') {
+            return hexA
+        } else {
+            hexA.push(parseInt(item, 16))
+        }
+    })
+    return hexA
+}
+
+function UTF8ToStr(arr) {
+    let val = ''
+    arr.forEach(item => {
+        if (item < 127) {
+            val += String.fromCharCode(item)
+        } else {
+            val += '%' + item.toString(16).toUpperCase()
+        }
+    })
+    console.log(val)
+    try {
+        return decodeURI(val)
+    } catch (err) {
+        return val
+    }
 }
