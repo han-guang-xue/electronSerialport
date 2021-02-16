@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-22 11:44:12
- * @LastEditTime: 2021-02-07 18:36:51
+ * @LastEditTime: 2021-02-16 11:22:01
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\index.js
@@ -191,10 +191,10 @@ function appendTable(type, data) {
 
     $('<table class="table table-hover">' +
         '    <tr>' +
-        '        <td>编号</td>' +
-        '        <td>单位名称</td>' +
-        '        <td style="width: 200px">操作' +
-        '</td>' +
+        '        <th>编号</th>' +
+        '        <th>单位名称</th>' +
+        '        <th style="width: 200px">操作' +
+        '</th>' +
         '    </tr>' +
         '</table>').appendTo($(".sf-center"))
 
@@ -414,7 +414,7 @@ function Str2Bytes(name) {
     })
     return hexA
 }
-
+/** UTF8 转化为字符串 */
 function UTF8ToStr(arr) {
     let val = ''
     arr.forEach(item => {

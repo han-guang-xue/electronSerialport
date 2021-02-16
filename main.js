@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-02-07 20:26:54
+ * @LastEditTime: 2021-02-16 11:19:51
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\main.js
@@ -13,7 +13,7 @@
 // console.log('process.versions.chrome', process.versions.chrome)
 // console.log('process.env.PROCESSOR_ARCHITECTURE', process.env.PROCESSOR_ARCHITECTURE)
 
-const { app, BrowserWindow, dialog } = require('electron')
+const { app, BrowserWindow, dialog, NativeImage, nativeImage } = require('electron')
 const path = require('path')
 const ws = require('nodejs-websocket')
 const SerialPort = require('serialport');
@@ -54,6 +54,7 @@ function createMainWin(width, height, resizable) {
     width: width,
     height: height,
     resizable,
+    backgroundColor: '#2e2c29',
     webPreferences: {
       nodeIntegration: false
     },
@@ -61,7 +62,7 @@ function createMainWin(width, height, resizable) {
   })
   mainWin.removeMenu();
   mainWin.loadFile('./index.html')
-  // mainWin.openDevTools()
+  mainWin.openDevTools()
   mainWin.on('close', function () {
     //主窗口关闭的时候必须将webscoket关闭
     //当服务关闭时触发该事件，如果有任何一个 connection 保持链接，都不会触发该事件
@@ -340,7 +341,7 @@ function createServer() {
 
 var curPort;
 var serialPortData = ""     //用于接收并整合串口数据
-var buffer = new ArrayBuffer()
+var buffer = new Array()
 function operPort(port, open, fail) {
   curPort = new SerialPort('com' + port, {
     baudRate: 115200,
@@ -354,7 +355,7 @@ function operPort(port, open, fail) {
   curPort.open(function () {
     open();
     curPort.on('data', function (data) {
-      console.log(data)
+      data.forEach(item => { buffer.push(item) })
       serialPortData += data
     }).on('error', fail)
   })
@@ -363,10 +364,11 @@ function operPort(port, open, fail) {
 /** 测试 */
 // operPort('3', () => {
 //   serialPortData = ''
+//   buffer = new Array()
 //   curPort.write("FFFD000201", 'utf-8', function (err, res) {
-//     console.log(res)
 //     setTimeout(() => {
 //       console.log(serialPortData.toString())
+//       console.log(buffer.toString('hex'))
 //     }, 500)
 //   })
 // }, () => { })
@@ -434,9 +436,5 @@ function packdata(res, success) {
       cdata.push(obj)
     }
   }
-  cdata.forEach(item => {
-    console.log("number:" + item.number)
-    console.log("name:" + item.name)
-  })
   success(cdata);
 }
