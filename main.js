@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-02-16 11:19:51
+ * @LastEditTime: 2021-02-18 09:56:36
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\main.js
@@ -13,12 +13,11 @@
 // console.log('process.versions.chrome', process.versions.chrome)
 // console.log('process.env.PROCESSOR_ARCHITECTURE', process.env.PROCESSOR_ARCHITECTURE)
 
-const { app, BrowserWindow, dialog, NativeImage, nativeImage } = require('electron')
-const path = require('path')
+const { app, BrowserWindow, dialog } = require('electron')
+
 const ws = require('nodejs-websocket')
 const SerialPort = require('serialport');
 const fs = require("fs");
-const { electron } = require('process');
 
 
 // 热加载
@@ -130,7 +129,6 @@ function createServer() {
         operPort(para.value,
           status => {
             send({ flag: CONF.SUS_PORT })
-
             //获取设备编号
             csend(getbuff(CONF.CODE_GDCNUM), (res) => {
               deviceNumber = res
@@ -145,17 +143,36 @@ function createServer() {
 
       //生成设备公私钥
       if (flag === CONF.CODE_GENKEY) {
-        csend(getbuff(CONF.CODE_GENKEY), (res) => {
-          if (res === CONF.DEVICE_POK) {
-            showMessageBox(mainWin, "更新成功")
-          } else {
-            showMessageBox(mainWin, "更新失败")
+        dialog.showOpenDialog(mainWin, { title: '选择更新后当前设备公钥的存储路径', properties: ['openDirectory'] }).then(res => {
+          if (!res.canceled) {
+            savePath = res.filePaths[0] + "\\"
+            csend(getbuff(CONF.CODE_GENKEY), (res) => {
+              if (res === CONF.DEVICE_POK) {
+                // send({ flag: CONF.CODE_GENKEY_SUCCESS })
+                // showMessageBox(mainWin, "更新成功")
+                csend(getbuff(CONF.CODE_EXPKEY), res => {
+                  res = covering(res, "");
+                  if (res.length === 64 * 2) {
+                    exitsfile(res, "PUBLICKEY", deviceNumber, (err, file) => {
+                      if (err) {
+                        showMessageBox(mainWin, "导出失败")
+                      } else {
+                        showMessageBox(mainWin, "更新成功, 更新后导出公钥文件路径:" + file)
+                      }
+                    })
+                  } else {
+                    showMessageBox(mainWin, "导出失败, 请检查设备是否连接正确")
+                  }
+                })
+              } else {
+                showMessageBox(mainWin, "更新失败")
+              }
+            })
           }
         })
       }
 
       //导入密钥表
-
       if (flag === CONF.CODE_IMTSIK) {
         dialog.showOpenDialog(mainWin, { title: '选择要导入的文件', properties: ['openFile'] }).then(res => {
           if (!res.canceled) {
@@ -180,19 +197,23 @@ function createServer() {
 
       //导出设备公钥
       if (flag === CONF.CODE_EXPKEY) {
-        csend(getbuff(CONF.CODE_EXPKEY), (res) => {
-          res = covering(res, "");
-          if (res.length === 64 * 2) {
-            exitsfile(res, "PUBLICKEY", deviceNumber, (err, file) => {
-              if (err) {
-                showMessageBox(mainWin, "导出失败")
+        dialog.showOpenDialog(mainWin, { title: '选择存储路径', properties: ['openDirectory'] }).then(res => {
+          if (!res.canceled) {
+            savePath = res.filePaths[0] + "\\"
+            csend(getbuff(CONF.CODE_EXPKEY), (res) => {
+              res = covering(res, "");
+              if (res.length === 64 * 2) {
+                exitsfile(res, "PUBLICKEY", deviceNumber, (err, file) => {
+                  if (err) {
+                    showMessageBox(mainWin, "导出失败")
+                  } else {
+                    showMessageBox(mainWin, "导出成功, 文件路径:" + file)
+                  }
+                })
               } else {
-                showMessageBox(mainWin, "导出成功, 文件路径:" + file)
-                dialog.showOpenDialog(mainWin, { title: '文件资源管理器', defaultPath: file, properties: ['openFile'] })
+                showMessageBox(mainWin, "导出失败, 请检查设备是否连接正确")
               }
             })
-          } else {
-            showMessageBox(mainWin, "导出失败, 请检查设备是否连接正确")
           }
         })
       }
@@ -213,24 +234,28 @@ function createServer() {
 
       // 导出密钥表
       if (flag === CONF.CODE_EXPSIK) {
-        csend(getbuff(CONF.CODE_EXPSIK, para.value), res => {
-          if (res !== CONF.DEVICE_PERROR) {
-            exitsfile(covering(res, ""), "SESSIONKEY", deviceNumber, (err, file) => {
-              if (err) {
-                showMessageBox(mainWin, "导出失败")
+        dialog.showOpenDialog(mainWin, { title: '选择要保存导出文件的目录', properties: ['openDirectory'] }).then(res => {
+          if (!res.canceled) {
+            savePath = res.filePaths[0] + "\\"
+            csend(getbuff(CONF.CODE_EXPSIK, para.value), res => {
+              if (res !== CONF.DEVICE_PERROR) {
+                exitsfile(covering(res, ""), "SESSIONKEY", para.value, (err, file) => {
+                  if (err) {
+                    showMessageBox(mainWin, "导出失败")
+                  } else {
+                    showMessageBox(mainWin, "导出成功, 文件路径:" + file)
+                  }
+                })
               } else {
-                showMessageBox(mainWin, "导出成功, 文件路径:" + file)
+                showMessageBox(mainWin, "导出失败, 请检查设备是否连接正确")
               }
             })
-          } else {
-            showMessageBox(mainWin, "导出失败, 请检查设备是否连接正确")
           }
         })
       }
 
       //验证用户登录信息
       if (flag === CONF.USER_VALI) {
-        serialPortData = ''
         csend(getbuff(CONF.CODE_VERIUK, 'admin', para.value), (res) => {
           console.log(res)
           if (res === CONF.DEVICE_PERROR) {
@@ -246,17 +271,33 @@ function createServer() {
 
       //修改密码
       if (flag === CONF.CHANGE_PSS) {
-        csend(getbuff(CONF.CODE_UPUPAS, para.value), (res) => {
-          console.log(res)
+        if (!para.oldValue) { showMessageBox(mainWin, '请输入旧密码'); return }
+        if (!para.value) { showMessageBox(mainWin, '请输入新密码'); return }
+        if (para.value != para.comfireValue) { showMessageBox(mainWin, '两次输入的密码不一致'); return }
+        if (para.value === para.oldValue) { showMessageBox(mainWin, '新密码和旧密码一致'); return }
+        if (para.value.length > 16) { showMessageBox(mainWin, '密码的长度不能大于16'); return }
+
+        csend(getbuff(CONF.CODE_VERIUK, 'admin', para.oldValue), (res) => {
           if (res === CONF.DEVICE_PERROR) {
-            showMessageBox(mainWin, '密码修改失败, 请检查设备是否连接正确!')
-            send({ flag: CONF.CHANGE_PSS_ERROR })
-          } else if (res === CONF.DEVICE_POK) {
-            send({ flag: CONF.CHANGE_PSS_OK })
+            showMessageBox(mainWin, "输入的旧密码不正确")
+          } else if (res === CONF.DEVICE_CENTER || res === CONF.DEVICE_SUBSET) {
+            csend(getbuff(CONF.CODE_UPUPAS, para.value), (res) => {
+              console.log(res)
+              if (res === CONF.DEVICE_PERROR) {
+                showMessageBox(mainWin, '密码修改失败, 请检查设备是否连接正确!')
+                send({ flag: CONF.CHANGE_PSS_ERROR })
+              } else if (res === CONF.DEVICE_POK) {
+                send({ flag: CONF.CHANGE_PSS_OK })
+              } else {
+                showMessageBox(mainWin, "设备连接失败")
+              }
+            })
+
           } else {
-            showMessageBox(mainWin, "设备连接失败")
+            showMessageBox(loginWin, "设备连接失败")
           }
         })
+
       }
 
       if (flag === CONF.GETTYPEWAY) {
@@ -266,7 +307,7 @@ function createServer() {
         if (wintype == CONF.DEVICE_CENTER) {
           createMainWin(1300, 800, true)
         } else if (wintype == CONF.DEVICE_SUBSET) {
-          createMainWin(620, 300, false)
+          createMainWin(620, 320, true)
         }
       }
 
@@ -375,10 +416,10 @@ function operPort(port, open, fail) {
 
 //开启webscoket
 createServer()
-
+var savePath
 function exitsfile(msg, per, number, success) {
   var date = new Date()
-  var cfile = app.getAppPath() + "\\result\\"
+  var cfile = savePath
   if (!fs.existsSync(cfile)) { fs.mkdirSync(cfile) }
   cfile = cfile + per + "_" + date.getTime() + "_" + number
   fs.writeFile(cfile, msg, 'utf-8', (res) => {

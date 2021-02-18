@@ -1,11 +1,12 @@
 {
-  "name": "electron-quick-start",
+  "name": "客户端",
   "version": "1.0.0",
   "description": "A minimal Electron application",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "electron-builder --win --x64",
+    "packger":"electron-packager . --electron-version=10.1.1 --download.mirrorOptions.mirror=https://npm.taobao.org/mirrors/electron/",
     "postinstall": "electron-builder install-app-deps"
   },
   "build": {

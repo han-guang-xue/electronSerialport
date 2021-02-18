@@ -1,13 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2021-01-22 11:44:12
- * @LastEditTime: 2021-02-16 11:22:01
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \shifang\index.js
- */
-
-
 var ws;
 function createWebscoket() {
     ws = new WebSocket('ws://localhost:8001');
@@ -24,19 +14,37 @@ function createWebscoket() {
             if (flag === CONF.GETTYPEWAY) {
                 //网关中心的一些配置
                 if (para.value === CONF.DEVICE_CENTER) {
-                    $("#devmsg").text("密钥管理中心")
+                    $("title").text("密钥管理中心")
                     send({ flag: CONF.GET_ALLKEY })
                 }
                 //非网关
                 if (para.value === CONF.DEVICE_SUBSET) {
-                    $('<button id="synchronouKey" class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-danger">' +
+                    $(
+                        '<button id="synchronouKey" class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-danger">' +
                         '    导入密钥表' +
-                        '</button>').appendTo($("#btns"))
-                    $("#devmsg").text("安全网关")
+                        '</button>' +
+                        '<button id="genPkey" class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-dark">' +
+                        '更新身份密钥' +
+                        '</button>' +
+                        '<button id="exportPKey" class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-info">' +
+                        '导出设备公钥' +
+                        '</button>'
+                    ).appendTo($("#btns"))
+                    //导出公钥
+                    $("#exportPKey").click(function () {
+                        send({ flag: CONF.CODE_EXPKEY })
+                    })
+
+                    //生成密钥
+                    $("#genPkey").click(function () {
+                        comfireModal('更新当前设备身份密钥之后,需要在网关中心将当前设备的公钥更换成最新', () => { send({ flag: CONF.CODE_GENKEY }) })
+                    })
 
                     $("#synchronouKey").click(() => {
                         send({ flag: CONF.CODE_IMTSIK })
                     })
+
+                    $("title").text("安全网关")
                 }
                 $("#box").addClass("boxopacity");
             }
@@ -78,7 +86,7 @@ function createWebscoket() {
     //保持连接状态
     setInterval(() => {
         send({ flag: CONF.CON_STATUS })
-    }, 10000);
+    }, 20000);
 }
 
 function settitle(ele) {
@@ -111,29 +119,67 @@ function btnmodal() {
         send({ flag: CONF.REBOOT })
     })
 
-    //修改密码
-    $("#btn_chp").click(() => {
-        $("#box").addClass("stl-exit");
-        $("#chp").modal("show")
-    })
-
     $("#btn_chp_false").click(() => {
         $("#box").removeClass("stl-exit");
         $("#chp").modal("hide")
     })
 
-    $("#btn_chp_true").click(() => {
-        var uvalue = $("#updatePassword").val();
-        if (uvalue.length > 16) {
-            alert("密码长度不能大于16");
-            return;
-        }
-        send({ flag: CONF.CHANGE_PSS, value: uvalue })
-        $("#box").removeClass("stl-exit");
-        $("#chp").modal("hide")
+    //修改密码
+    $('#btn_chp').click(function () {
+        // $("#box").addClass("stl-exit");
+        // $("#chp").modal("show")
+        $("#chp").remove()
+        var classinput = "col-sm-9"
+        var classlable = "col-sm-3"
+        $(
+            '<div class="modal fade" id="chp" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"' +
+            '    data-backdrop="static" data-keyboard="false">' +
+            '    <div class="modal-dialog">' +
+            '    <div class="modal-content">      ' +
+            '        <div class="modal-body" style="padding-bottom: 0px;">' +
+            '        <form>' +
+            '            <div class="form-group row">' +
+            '               <label for="staticEmail" class="' + classlable + ' col-form-label">旧密码</label>' +
+            '               <div class="' + classinput + '">' +
+            '            <input id="oldPassword" type="password" class="form-control form-control-sm" id="recipient-name"' +
+            '                placeholder="请输入旧密码" />' +
+            '            </div>' +
+            '            </div>' +
+
+            '            <div class="form-group row">' +
+            '               <label for="staticEmail" class="' + classlable + ' col-form-label">新密码</label>' +
+            '           <div class="' + classinput + '">' +
+            '            <input id="updatePassword1" type="password" class="form-control form-control-sm" id="recipient-name"' +
+            '                placeholder="请输入新密码" />' +
+            '            </div>' +
+            '            </div>' +
+            '            <div class="form-group row">' +
+            '               <label for="staticEmail" class="' + classlable + ' col-form-label">确认新密码</label>' +
+            '               <div class="' + classinput + '">' +
+            '            <input id="updatePassword2" type="password" class="form-control form-control-sm" id="recipient-name"' +
+            '                placeholder="再次输入新密码" />' +
+            '            </div>' +
+            '            </div>' +
+            '        </form>' +
+            '        </div>' +
+            '        <div class="modal-footer" style="padding: 5px 10px;">' +
+            '        <button type="button" id="btn_chp_false" class="btn btn-secondary btn-sm" data-dismiss="modal">' +
+            '            取消' +
+            '        </button>' +
+            '        <button type="button" id="btn_chp_true" class="btn btn-primary btn-sm">确定</button>' +
+            '        </div>' +
+            '    </div>' +
+            '    </div>' +
+            '</div>'
+        ).appendTo($('body'))
+        $("#chp").modal("show")
+        $("#btn_chp_true").click(() => {
+            var uvalue1 = $("#updatePassword1").val();
+            var uvalue2 = $("#updatePassword2").val();
+            var oldvalue = $("#oldPassword").val();
+            send({ flag: CONF.CHANGE_PSS, value: uvalue1, comfireValue: uvalue2, oldValue: oldvalue })
+        })
     })
-
-
 
     //退出
     $("#btn_exit").click(() => {
@@ -150,15 +196,7 @@ function btnmodal() {
         send({ flag: CONF.EXITBOOT })
     })
 
-    //导出公钥
-    $("#exportPKey").click(function () {
-        send({ flag: CONF.CODE_EXPKEY })
-    })
 
-    //生成密钥
-    $("#genPkey").click(function () {
-        send({ flag: CONF.CODE_GENKEY })
-    })
 }
 
 function send(data) {
@@ -185,7 +223,7 @@ function appendTable(type, data) {
     $('#update').remove()
 
     $('<div class="sf-center"> </div>').appendTo($('.sf-box'))
-    $('<button id="update" class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-success siskey_table_btn3">' +
+    $('<button id="update" style="margin-top: -20px; margin-bottom: -20px;" class="py-2 pl-6 pr-6 mr-3 flex btn btn-outline-success siskey_table_btn3">' +
         '  添加新设备' +
         '</button>').prependTo($("#btns"))
 
@@ -202,7 +240,7 @@ function appendTable(type, data) {
         $('<tr><td colspan="3" class="alert alert-warning" style="font-size:12px;">还没有设备, 请点击右上角按钮 <a href="#" class="alert-link">"添加新设备"</a> 添加设备</td></tr>').appendTo($('table'))
         return
     }
-    var comname = "中央大门有限公司";
+    var comname = "";
     data.forEach(item => {
         $('<tr>' +
             '    <td class="number">' + item.number + '</td>' +
@@ -250,7 +288,9 @@ function appendTable(type, data) {
     //生成,更换会话密钥
     $(".genSissionKey").click(function () {
         let number = $(this).parent().parent().find(".number").text();
-        send({ flag: CONF.CODE_GENSIK, value: number })
+        comfireModal('更换设备' + number + '会话密钥之后,必须对每个设备进行同步操作,否则当前设备会与其它设备不能通信', () => {
+            send({ flag: CONF.CODE_GENSIK, value: number })
+        })
     })
 
     // 导出密钥表
@@ -344,6 +384,36 @@ function appendTable(type, data) {
                 send({ flag: CONF.ADD_PUBLIC_KEY, value: { isupdate, number, cname, cfile } })
             }
         })
+    })
+}
+
+function comfireModal(msg, success) {
+    $("#updatesik").remove()
+    $(
+        '<div class="modal fade" id="updatesik" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"' +
+        '    aria-labelledby="staticBackdropLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">' +
+        '    <div class="modal-dialog">' +
+        '        <div class="modal-content alert alert-danger ">' +
+        '            <div class="modal-header">' +
+        '                <button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
+        '                    <span aria-hidden="true">&times;</span>' +
+        '                </button>' +
+        '            </div>' +
+        '            <div class="modal-body">' +
+        '                <div class="">' + msg + '</div>' +
+        '            </div>' +
+        '            <div class="modal-footer">' +
+        '                <button type="button" class="btn btn-secondary btn-sm" data-dismiss="modal"> 取消</button>' +
+        '                <button id="updatesiskey001" type="button" class="btn btn-primary exit btn-sm">确定</button>' +
+        '            </div>' +
+        '        </div>' +
+        '    </div>' +
+        '</div>'
+    ).appendTo($('body'))
+    $("#updatesik").modal('show')
+    $("#updatesiskey001").click(function () {
+        $("#updatesik").modal('hide')
+        success()
     })
 }
 

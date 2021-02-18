@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-02-02 10:47:38
- * @LastEditTime: 2021-02-07 12:59:55
+ * @LastEditTime: 2021-02-16 17:01:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \electron-serialport-start\login.js
@@ -36,6 +36,7 @@ function createWebscoket() {
 
         if (flag === CONF.ERR_VAIL) {
             //登录失败
+            $('#loggin_message').find('div').remove()
             $('<div class="alert alert-danger" role="alert">' +
                 '密码错误' +
                 '</div>').appendTo($("#loggin_message"))
