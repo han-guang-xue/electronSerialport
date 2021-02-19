@@ -5,26 +5,29 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build": "electron-builder --win --x64",
     "rebuild": "electron-rebuild -f -w serialport",
+    "builder": "electron-builder --win --x64",
     "packger": "electron-packager . --electron-version=10.1.1 --out=./out --download.mirrorOptions.mirror=https://npm.taobao.org/mirrors/electron/",
-    "postinstall": "electron-builder install-app-deps"
+    "postinstall": "electron-builder install-app-deps",
+    "more": "cnpm install && npm run rebuild && npm run builder"
   },
   "devDependencies": {
     "bootstrap": "^4.6.0",
-    "electron": "^9.0.5",
+    "electron": "^7.1.9",
     "electron-builder": "^22.7.0",
     "electron-rebuild": "^1.11.0",
     "electron-reloader": "^1.2.0",
     "jquery": "^3.5.1",
     "nodejs-websocket": "^1.7.2",
-    "serialport": "^9.0.6"
+    "serialport": "^9.0.6",
+    "electron-log": "4.3.0"
   },
   "dependencies": {
     "bootstrap": "^4.6.0",
     "jquery": "^3.5.1",
     "nodejs-websocket": "^1.7.2",
-    "serialport": "^9.0.6"
+    "serialport": "^9.0.6",
+    "electron-log": "4.3.0"
   },
   "build": {
     "appId": "com.vasen.serialport",
@@ -39,12 +42,11 @@
       ]
     },
     "nsis": {
-      "oneClick": false, 
-      "guid": "xxxx", 
-      "perMachine": true, 
+      "oneClick": false,
+      "guid": "xxxx",
+      "perMachine": true,
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true
-   
     }
   },
   "repository": "https://github.com/electron/electron-quick-start",
@@ -57,5 +59,4 @@
   ],
   "author": "GitHub",
   "license": "CC0-1.0"
- 
 }

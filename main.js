@@ -1,20 +1,24 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-02-19 14:34:47
+ * @LastEditTime: 2021-02-19 17:16:32
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\main.js
  */
-// console.log('process.versions.electron', process.versions.electron)
-// console.log('process.versions.modules', process.versions.modules)
-// console.log('process.versions.node', process.versions.node)
-// console.log('process.versions.v8', process.versions.v8)
-// console.log('process.versions.chrome', process.versions.chrome)
-// console.log('process.env.PROCESSOR_ARCHITECTURE', process.env.PROCESSOR_ARCHITECTURE)
+const log = require('electron-log')
+log.transports.file.fileName = 'serialport_client.log'
+log.transports.file.level = true; //是否输出到 日志文件
+log.transports.console.level = true; //是否输出到 控制台
+
+log.info('process.versions.electron' + process.versions.electron)
+log.info('process.versions.modules' + process.versions.modules)
+log.info('process.versions.node' + process.versions.node)
+log.info('process.versions.v8' + process.versions.v8)
+log.info('process.versions.chrome' + process.versions.chrome)
+log.info('process.env.PROCESSOR_ARCHITECTURE' + process.env.PROCESSOR_ARCHITECTURE)
 
 const { app, BrowserWindow, dialog } = require('electron')
-
 const ws = require('nodejs-websocket')
 const SerialPort = require('serialport');
 const fs = require("fs");
@@ -22,7 +26,7 @@ var loginWin
 var mainWin
 
 app.on('second-instance', () => {
-  console.log("=======>")
+  log.info("=======>")
 })
 
 // 热加载
@@ -102,6 +106,7 @@ var showMessageBox = function (win, message) {
 /** 创建 webscoket 服务, 监听串口通信 并发送客户端 */
 var webconn
 function createServer() {
+
   ws.createServer(function (conn) {
     webconn = conn;
     var send = function (data) { conn.sendText(JSON.stringify(data)) }
@@ -110,7 +115,7 @@ function createServer() {
       curPort.write(buff, function (err) {
         setTimeout(() => {
           var res = serialPortData.toString();
-          console.log(res)
+          log.info(res)
           success(res.trim())
         }, 500)
       })
@@ -118,7 +123,7 @@ function createServer() {
     conn.on("text", function (str) {
       const para = JSON.parse(str)
       const flag = para.flag
-      console.log(para)
+      log.info(para)
       if (flag === CONF.LIST_PORT) {
         // 获取所有串口
         var listPort = []
@@ -141,7 +146,7 @@ function createServer() {
             })
           },
           err => {
-            console.log(err)
+            log.info(err)
             showMessageBox(loginWin, "请检查设备 COM" + para.value + " 是否连接正确或已被其它设备连接");
             send({ flag: CONF.ERR_PORT, value: err })
           })
@@ -263,7 +268,7 @@ function createServer() {
       //验证用户登录信息
       if (flag === CONF.USER_VALI) {
         csend(getbuff(CONF.CODE_VERIUK, 'admin', para.value), (res) => {
-          console.log(res)
+          log.info(res)
           if (res === CONF.DEVICE_PERROR) {
             send({ flag: CONF.ERR_VAIL })
           } else if (res === CONF.DEVICE_CENTER || res === CONF.DEVICE_SUBSET) {
@@ -288,7 +293,7 @@ function createServer() {
             showMessageBox(mainWin, "输入的旧密码不正确")
           } else if (res === CONF.DEVICE_CENTER || res === CONF.DEVICE_SUBSET) {
             csend(getbuff(CONF.CODE_UPUPAS, para.value), (res) => {
-              console.log(res)
+              log.info(res)
               if (res === CONF.DEVICE_PERROR) {
                 showMessageBox(mainWin, '密码修改失败, 请检查设备是否连接正确!')
                 send({ flag: CONF.CHANGE_PSS_ERROR })
@@ -380,7 +385,7 @@ function createServer() {
       }
     })
     conn.on("close", function (coded, reason) {
-      console.log("connection closed")
+      log.info("connection closed")
     })
   }).listen(CONF.SCOKET_PORT)
 }
@@ -415,8 +420,8 @@ function operPort(port, open, fail) {
 //   buffer = new Array()
 //   curPort.write("FFFD000201", 'utf-8', function (err, res) {
 //     setTimeout(() => {
-//       console.log(serialPortData.toString())
-//       console.log(buffer.toString('hex'))
+//       log.info(serialPortData.toString())
+//       log.info(buffer.toString('hex'))
 //     }, 500)
 //   })
 // }, () => { })
@@ -449,7 +454,7 @@ function getbuff(code, ...para) {
   } else if (len < 1000) {
     flag = '0' + len
   }
-  console.log(code + flag + val)
+  log.info(code + flag + val)
   return code + flag + val
 }
 
@@ -480,7 +485,7 @@ function packdata(res, success) {
     else { obj.name.push(res[i]) }
 
     if ((i + 1) % 31 === 0) {
-      console.log(JSON.stringify(obj))
+      log.info(JSON.stringify(obj))
       cdata.push(obj)
     }
   }
