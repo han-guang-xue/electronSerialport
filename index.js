@@ -1,6 +1,6 @@
 var ws;
 function createWebscoket() {
-    ws = new WebSocket('ws://localhost:8001');
+    ws = new WebSocket('ws://localhost:' + CONF.SCOKET_PORT);
     ws.onopen = function (e) {
         console.log('客户端与服务器的连接已经打开 ! ');
         ws.onmessage = function (msg) {

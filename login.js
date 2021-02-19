@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-02-02 10:47:38
- * @LastEditTime: 2021-02-16 17:01:39
+ * @LastEditTime: 2021-02-19 10:22:29
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \electron-serialport-start\login.js
@@ -12,7 +12,7 @@ function send(data) {
     ws.send(JSON.stringify(data))
 }
 function createWebscoket() {
-    ws = new WebSocket('ws://localhost:8001');
+    ws = new WebSocket('ws://localhost:' + CONF.SCOKET_PORT);
     ws.onopen = function (e) {
         console.log('客户端与服务器的连接已经打开! ');
         send({ flag: CONF.LIST_PORT });

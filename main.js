@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-02-18 09:56:36
+ * @LastEditTime: 2021-02-19 10:45:17
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\main.js
@@ -18,7 +18,12 @@ const { app, BrowserWindow, dialog } = require('electron')
 const ws = require('nodejs-websocket')
 const SerialPort = require('serialport');
 const fs = require("fs");
+var loginWin
+var mainWin
 
+app.on('second-instance', () => {
+  console.log("=======>")
+})
 
 // 热加载
 // try {
@@ -31,8 +36,7 @@ const CONF = JSON.parse(fs.readFileSync('./config.json', 'utf-8'))
 var reboot = false
 var wintype       //网关类型
 var deviceNumber = "00"  //当前设备编号
-var loginWin
-var mainWin
+
 
 function createLoginWin() {
   loginWin = new BrowserWindow({
@@ -85,6 +89,8 @@ app.on('window-all-closed', () => {
   }
 })
 
+
+
 var showMessageBox = function (win, message) {
   dialog.showMessageBox(win, {
     type: 'info',
@@ -94,7 +100,7 @@ var showMessageBox = function (win, message) {
 }
 
 /** 创建 webscoket 服务, 监听串口通信 并发送客户端 */
-var webconn;
+var webconn
 function createServer() {
   ws.createServer(function (conn) {
     webconn = conn;
@@ -376,7 +382,7 @@ function createServer() {
     conn.on("close", function (coded, reason) {
       console.log("connection closed")
     })
-  }).listen(8001)
+  }).listen(CONF.SCOKET_PORT)
 }
 
 
