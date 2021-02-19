@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-02-19 10:45:17
+ * @LastEditTime: 2021-02-19 14:28:24
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\main.js
@@ -49,7 +49,7 @@ function createLoginWin() {
   })
   loginWin.removeMenu();
   loginWin.loadFile('./login.html')
-  // loginWin.openDevTools()
+  loginWin.openDevTools()
 }
 
 function createMainWin(width, height, resizable) {

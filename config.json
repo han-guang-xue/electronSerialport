@@ -1,4 +1,5 @@
 {
+    "SCOKET_PORT": 8111,
     "LIST_PORT": "LIST_PORT",
     "SET_PORT": "SET_PORT",
     "SUS_PORT": "SUS_PORT",
