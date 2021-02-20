@@ -206,7 +206,7 @@ function send(data) {
 var CONF;
 $(function () {
     //加载配置文件
-    $.getJSON('./config.json', function (data) {
+    $.getJSON('../config.json', function (data) {
         CONF = data;
         createWebscoket();
 

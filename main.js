@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-02-20 16:36:59
+ * @LastEditTime: 2021-02-20 17:26:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\main.js
@@ -56,7 +56,7 @@ function createLoginWin() {
     show: true
   })
   loginWin.removeMenu();
-  loginWin.loadFile('./login.html')
+  loginWin.loadFile('./src/login.html')
   loginWin.openDevTools()
 }
 
@@ -72,8 +72,8 @@ function createMainWin(width, height, resizable) {
     show: true
   })
   mainWin.removeMenu();
-  mainWin.loadFile('./index.html')
-  // mainWin.openDevTools()
+  mainWin.loadFile('./src/index.html')
+  mainWin.openDevTools()
   mainWin.on('close', function () {
     //主窗口关闭的时候必须将webscoket关闭
     //当服务关闭时触发该事件，如果有任何一个 connection 保持链接，都不会触发该事件
@@ -96,8 +96,6 @@ app.on('window-all-closed', () => {
     }
   }
 })
-
-
 
 var showMessageBox = function (win, message) {
   dialog.showMessageBox(win, {
@@ -417,7 +415,7 @@ function operPort(port, open, fail) {
     curPort.on('data', function (data) {
       data.forEach(item => { buffer.push(item) })
       serialPortData += data
-      console.warn(serialPortData)
+      // console.warn(serialPortData)
     }).on('error', fail)
   })
 }

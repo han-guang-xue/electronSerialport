@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-02-02 10:47:38
- * @LastEditTime: 2021-02-20 16:41:42
+ * @LastEditTime: 2021-02-20 17:22:28
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \electron-serialport-start\login.js
@@ -111,7 +111,7 @@ function appendLogin() {
 var CONF;
 $(function () {
     //加载配置文件
-    $.getJSON('./config.json', function (data) {
+    $.getJSON('../config.json', function (data) {
         CONF = data;
         console.log(CONF)
         //创建webscoket
