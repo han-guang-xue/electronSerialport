@@ -1,13 +1,15 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-02-19 17:16:32
+ * @LastEditTime: 2021-02-20 16:36:59
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\main.js
  */
 const log = require('electron-log')
+
 log.transports.file.fileName = 'serialport_client.log'
+log.transports.console.level = 'silly'
 log.transports.file.level = true; //是否输出到 日志文件
 log.transports.console.level = true; //是否输出到 控制台
 
@@ -25,24 +27,26 @@ const fs = require("fs");
 var loginWin
 var mainWin
 
-app.on('second-instance', () => {
-  log.info("=======>")
-})
-
-// 热加载
-// try {
-//   require('electron-reloader')(module);
-// } catch (_) { }
+// let pathConfig = "./resources/app/config.json"
+let pathConfig = "./config.json"
 
 /** 读取配置文件 */
-const CONF = JSON.parse(fs.readFileSync('./config.json', 'utf-8'))
+var CONF;
+try {
+  CONF = JSON.parse(fs.readFileSync(pathConfig, 'utf-8'))
+  log.info(JSON.stringify(CONF))
+} catch (err) {
+  log.error("Configuration file read failed")
+  return
+}
+
 
 var reboot = false
 var wintype       //网关类型
 var deviceNumber = "00"  //当前设备编号
 
-
 function createLoginWin() {
+
   loginWin = new BrowserWindow({
     width: 400,
     height: 300,
@@ -53,7 +57,7 @@ function createLoginWin() {
   })
   loginWin.removeMenu();
   loginWin.loadFile('./login.html')
-  // loginWin.openDevTools()
+  loginWin.openDevTools()
 }
 
 function createMainWin(width, height, resizable) {
@@ -126,13 +130,18 @@ function createServer() {
       log.info(para)
       if (flag === CONF.LIST_PORT) {
         // 获取所有串口
+        log.info('列举串口设备')
         var listPort = []
         SerialPort.list().then(ports => {
+          log.info(ports)
           ports.forEach(item => {
             listPort.push({ path: item.path })
           })
           send({ flag: CONF.LIST_PORT, value: listPort })
-        });
+        }).catch(err => {
+          log.info(err)
+          log.info('列举串口失败')
+        })
       }
 
       if (flag === CONF.SET_PORT) {
@@ -303,7 +312,6 @@ function createServer() {
                 showMessageBox(mainWin, "设备连接失败")
               }
             })
-
           } else {
             showMessageBox(loginWin, "设备连接失败")
           }

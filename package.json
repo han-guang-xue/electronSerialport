@@ -7,19 +7,20 @@
     "start": "electron .",
     "rebuild": "electron-rebuild -f -w serialport",
     "builder": "electron-builder --win --x64",
-    "packger": "electron-packager . --electron-version=10.1.1 --out=./out --download.mirrorOptions.mirror=https://npm.taobao.org/mirrors/electron/",
+    "packager": "electron-packager . --electron-version=10.1.1 --out=./out --download.mirrorOptions.mirror=https://npm.taobao.org/mirrors/electron/",
     "postinstall": "electron-builder install-app-deps",
     "more": "cnpm install && npm run rebuild && npm run builder"
   },
   "devDependencies": {
     "bootstrap": "^4.6.0",
     "electron": "^7.1.9",
-    "electron-builder": "^22.7.0",
-    "electron-rebuild": "^1.11.0",
+    "electron-builder": "^22.10.5",
+    "electron-rebuild": "^2.3.5",
     "electron-reloader": "^1.2.0",
+    "electron-packager":"^15.1.0",
     "jquery": "^3.5.1",
     "nodejs-websocket": "^1.7.2",
-    "serialport": "^9.0.6",
+    "serialport": "^8.0.6",
     "electron-log": "4.3.0"
   },
   "dependencies": {
@@ -30,6 +31,8 @@
     "electron-log": "4.3.0"
   },
   "build": {
+    "directories": {"output":"E:\\YCXGIT\\building\\build7"},
+    "asar":false,
     "appId": "com.vasen.serialport",
     "mac": {
       "target": [
@@ -43,11 +46,10 @@
     },
     "nsis": {
       "oneClick": false,
-      "guid": "xxxx",
       "perMachine": true,
       "allowElevation": true,
       "allowToChangeInstallationDirectory": true
-    }
+    }   
   },
   "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
