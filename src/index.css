@@ -24,10 +24,7 @@
 
 #box {
     opacity: 0;
-    
 }
-
-
 
 .boxopacity {
     animation: anim_opcity 0.4s forwards;

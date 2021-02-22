@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-02-02 10:47:38
- * @LastEditTime: 2021-02-20 17:34:34
+ * @LastEditTime: 2021-02-22 14:59:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \electron-serialport-start\login.js
@@ -88,9 +88,10 @@ function appendPort(ports) {
 }
 
 function appendLogin() {
+    var init = "<a id='updateKey' style='font-size:10px;color:blue'>初始化设备</a>"
     $(".lg_list").remove();
     $(".lg_main").append($('<form id="lg_loging" class="lg_list">' +
-        '    <div id="loggin_message"></div>' +
+        '    <div id="loggin_message"> ' + init + '  </div>' +
         '    <div class="form-group">' +
         '        <label for="recipient-name" class="col-form-label">密码:</label>' +
         '        <input  id="password" type="password" autofocus="autofocus" class="form-control logging-input" id="loggin_password"' +
@@ -98,6 +99,10 @@ function appendLogin() {
         '    </div>' +
         '    <div class="form-group" style="margin-top:40px;"><button id="loggin" type="button" class="btn btn-primary btn-block">登录</button></div>' +
         '</form> '))
+
+    $("#updateKey").click(res => {
+        send({ flag: CONF.CODE_INITIF })
+    })
 
     $("#password").click(() => {
         $("#loggin_message").find("div").remove();

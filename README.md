@@ -1,3 +1,12 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-01-27 14:31:52
+ * @LastEditTime: 2021-02-22 17:31:07
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \electron-serialport-start\README.md
+-->
+
 ## electron 和 serialport 项目整合(编译打包成安装包全流程)
 
 项目地址: 项目地址: https://github.com/han-guang-xue/electronSerialport
@@ -53,4 +62,39 @@ TypeError: Third argument must be a function
       "allowToChangeInstallationDirectory": true
     }
   },
+```
+
+## electron 实现单例程序
+
+该方式只针对 electron@3 以上的
+
+```JavaScript
+const getTheLock = app.requestSingleInstanceLock()
+if (!getTheLock) {
+  app.quit()
+  return
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    //isMinimized 判断窗口是否最小化
+    if (loginWin) {
+      if (loginWin.isMinimized()) loginWin.restore()
+      loginWin.focus()  //聚焦
+    }
+    if (mainWin) {
+      if (mainWin.isMinimized()) mainWin.restore()
+      mainWin.focus()
+    }
+  })
+  app.on('ready', createLoginWin)
+}
+```
+
+## electron 中如何使用 jquery, 去除 require 导入模块引起的冲突
+
+在创建窗体的时候添加属性 `nodeIntegration: false`
+
+```JavaScript
+webPreferences: {
+  nodeIntegration: false
+}
 ```

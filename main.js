@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-02-22 10:12:48
+ * @LastEditTime: 2021-02-22 17:21:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\main.js
@@ -27,8 +27,8 @@ const fs = require("fs");
 var loginWin
 var mainWin
 
-let pathConfig = "./resources/app/config.json"
-// let pathConfig = "./config.json"
+// let pathConfig = "./resources/app/config.json"
+let pathConfig = "./config.json"
 
 /** 读取配置文件 */
 var CONF;
@@ -37,9 +37,9 @@ try {
   log.info(JSON.stringify(CONF))
 } catch (err) {
   log.error("Configuration file read failed")
+  app.quit()
   return
 }
-
 
 var reboot = false
 var wintype       //网关类型
@@ -87,7 +87,25 @@ function createMainWin(width, height, resizable) {
   })
 }
 
-app.whenReady().then(createLoginWin)
+// app.whenReady().then(createLoginWin)
+
+const getTheLock = app.requestSingleInstanceLock()
+if (!getTheLock) {
+  app.quit()
+  return
+} else {
+  app.on('second-instance', (event, commandLine, workingDirectory) => {
+    if (loginWin) {
+      if (loginWin.isMinimized()) loginWin.restore()
+      loginWin.focus()
+    }
+    if (mainWin) {
+      if (mainWin.isMinimized()) mainWin.restore()
+      mainWin.focus()
+    }
+  })
+  app.on('ready', createLoginWin)
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -148,10 +166,6 @@ function createServer() {
         operPort(para.value,
           status => {
             send({ flag: CONF.SUS_PORT })
-            //获取设备编号
-            csend(getbuff(CONF.CODE_GDCNUM), (res) => {
-              deviceNumber = res
-            })
           },
           err => {
             log.info(err)
@@ -281,7 +295,16 @@ function createServer() {
             send({ flag: CONF.ERR_VAIL })
           } else if (res === CONF.DEVICE_CENTER || res === CONF.DEVICE_SUBSET) {
             wintype = res; //如果用户验证正确, 则返回网关类型
-            send({ flag: CONF.SUS_VAIL })
+            //获取设备编号
+            csend(getbuff(CONF.CODE_GDCNUM), (number) => {
+              deviceNumber = number
+              log.info("The number was successfully obtained, number " + number)
+              if (number) {
+                send({ flag: CONF.SUS_VAIL })
+              } else {
+                showMessageBox(loginWin, "位获取设备的编号")
+              }
+            })
           } else {
             showMessageBox(loginWin, "设备连接失败")
           }
@@ -389,6 +412,19 @@ function createServer() {
             }
           })
         }
+      }
+
+      //恢复出厂设置
+      if (flag === CONF.CODE_INITIF) {
+        csend(getbuff(CONF.CODE_INITIF), (res) => {
+          if (res == CONF.DEVICE_POK) {
+            showMessageBox(loginWin, "初始化成功!")
+          } else if (res == CONF.DEVICE_PERROR) {
+            showMessageBox(loginWin, "初始化失败!")
+          } else {
+            showMessageBox(loginWin, "设备连接失败!")
+          }
+        })
       }
     })
     conn.on("close", function (coded, reason) {

@@ -40,6 +40,7 @@
     "CODE_EXPMAI": "FFF1",
     "CODE_CLAIMK": "FFF2",
     "CODE_IMTSIK": "FFF3",
+    "CODE_INITIF": "FFF4",
     "CODE_GENKEY": "FFFA",
     "CODE_EXPKEY": "FFFB",
     "CODE_GENSIK": "FFFC",
