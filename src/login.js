@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-02-02 10:47:38
- * @LastEditTime: 2021-02-20 17:22:28
+ * @LastEditTime: 2021-02-20 17:34:34
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \electron-serialport-start\login.js
@@ -72,6 +72,7 @@ function appendPort(ports) {
     ports.forEach(item => {
         $("#devicePort").append($('<option class="chooseDevice" value="' + item.path.slice(-1) + '" ' + (item.path == curPort ? 'selected' : '') + '>' + item.path + '</option>'))
     });
+
     if (ports.length == 0) {
         $("#devicePortMessage").html("<font color='red'>没有检测到设备</font>")
     }

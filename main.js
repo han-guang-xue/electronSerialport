@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-02-20 17:26:02
+ * @LastEditTime: 2021-02-22 10:12:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\main.js
@@ -27,8 +27,8 @@ const fs = require("fs");
 var loginWin
 var mainWin
 
-// let pathConfig = "./resources/app/config.json"
-let pathConfig = "./config.json"
+let pathConfig = "./resources/app/config.json"
+// let pathConfig = "./config.json"
 
 /** 读取配置文件 */
 var CONF;
@@ -50,6 +50,7 @@ function createLoginWin() {
   loginWin = new BrowserWindow({
     width: 400,
     height: 300,
+    resizable: false,
     webPreferences: {
       nodeIntegration: false
     },
@@ -57,7 +58,7 @@ function createLoginWin() {
   })
   loginWin.removeMenu();
   loginWin.loadFile('./src/login.html')
-  loginWin.openDevTools()
+  // loginWin.openDevTools()
 }
 
 function createMainWin(width, height, resizable) {
@@ -73,7 +74,7 @@ function createMainWin(width, height, resizable) {
   })
   mainWin.removeMenu();
   mainWin.loadFile('./src/index.html')
-  mainWin.openDevTools()
+  // mainWin.openDevTools()
   mainWin.on('close', function () {
     //主窗口关闭的时候必须将webscoket关闭
     //当服务关闭时触发该事件，如果有任何一个 connection 保持链接，都不会触发该事件
@@ -324,7 +325,7 @@ function createServer() {
         if (wintype == CONF.DEVICE_CENTER) {
           createMainWin(1300, 800, true)
         } else if (wintype == CONF.DEVICE_SUBSET) {
-          createMainWin(620, 320, true)
+          createMainWin(620, 320, false)
         }
       }
 

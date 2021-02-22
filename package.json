@@ -13,7 +13,7 @@
   },
   "devDependencies": {
     "bootstrap": "^4.6.0",
-    "electron": "^7.1.9",
+    "electron": "^11.1.0",
     "electron-builder": "^22.10.5",
     "electron-rebuild": "^2.3.5",
     "electron-reloader": "^1.2.0",
@@ -31,8 +31,9 @@
     "electron-log": "4.3.0"
   },
   "build": {
-    "directories": {"output":"E:\\YCXGIT\\building\\build7"},
+    "directories": {"output":"E:\\YCXGIT\\building\\build17"},
     "asar":false,
+    "buildDependenciesFromSource":true,
     "appId": "com.vasen.serialport",
     "mac": {
       "target": [
