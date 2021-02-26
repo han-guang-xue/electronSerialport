@@ -10,11 +10,12 @@
     "ALREADY": "ALREADY",
     "GETTYPEWAY": "GETTYPEWAY",
 
-    "DEVICE_CENTER": "KMC",
-    "DEVICE_SUBSET": "GATEWAY",
-    "DEVICE_PERROR" : "PERR",
-    "DEVICE_POK" : "POK",
-    "DEVICE_PNO": "PNO",
+    "DEVICE_CENTER": "##[KMC]##",
+    "DEVICE_SUBSET": "##[GATEWAY]##",
+    "DEVICE_PERROR" : "##[PERR]##",
+    "DEVICE_POK" : "##[POK]##",
+    "DEVICE_DATA_START" : "##[DATA_SRT]##",
+    "DEVICE_DATA_END" : "##[DATA_END]##",
 
     "USER_VALI": "USER_VALI",
     "ERR_VAIL": "ERR_VAIL",

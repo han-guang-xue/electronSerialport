@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-02-22 17:21:43
+ * @LastEditTime: 2021-02-26 11:37:36
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shifang\main.js
@@ -27,8 +27,8 @@ const fs = require("fs");
 var loginWin
 var mainWin
 
-// let pathConfig = "./resources/app/config.json"
-let pathConfig = "./config.json"
+let pathConfig = "./resources/app/config.json"
+// let pathConfig = "./config.json"
 
 /** 读取配置文件 */
 var CONF;
@@ -176,25 +176,30 @@ function createServer() {
 
       //生成设备公私钥
       if (flag === CONF.CODE_GENKEY) {
-        dialog.showOpenDialog(mainWin, { title: '选择更新后当前设备公钥的存储路径', properties: ['openDirectory'] }).then(res => {
-          if (!res.canceled) {
-            savePath = res.filePaths[0] + "\\"
-            csend(getbuff(CONF.CODE_GENKEY), (res) => {
-              if (res === CONF.DEVICE_POK) {
+        dialog.showOpenDialog(mainWin, { title: '选择更新后当前设备公钥的存储路径', properties: ['openDirectory'] }).then(res1 => {
+          if (!res1.canceled) {
+            savePath = res1.filePaths[0] + "\\"
+            csend(getbuff(CONF.CODE_GENKEY), (res2) => {
+              if (-1 != res2.indexOf(CONF.DEVICE_POK)) {
                 // send({ flag: CONF.CODE_GENKEY_SUCCESS })
                 // showMessageBox(mainWin, "更新成功")
                 csend(getbuff(CONF.CODE_EXPKEY), res => {
-                  res = covering(res, "");
-                  if (res.length === 64 * 2) {
-                    exitsfile(res, "PUBLICKEY", deviceNumber, (err, file) => {
-                      if (err) {
-                        showMessageBox(mainWin, "导出失败")
-                      } else {
-                        showMessageBox(mainWin, "更新成功, 更新后导出公钥文件路径:" + file)
-                      }
-                    })
+                  var rdata = split_res(res)
+                  if (rdata) {
+                    rdata = covering(rdata, "");
+                    if (rdata.length === 64 * 2) {
+                      exitsfile(rdata, "PUBLICKEY", deviceNumber, (err, file) => {
+                        if (err) {
+                          showMessageBox(mainWin, "导出失败")
+                        } else {
+                          showMessageBox(mainWin, "更新成功, 更新后导出公钥文件路径:" + file)
+                        }
+                      })
+                    } else {
+                      showMessageBox(mainWin, "导出失败, 请检查设备是否连接正确")
+                    }
                   } else {
-                    showMessageBox(mainWin, "导出失败, 请检查设备是否连接正确")
+                    showMessageBox(mainWin, '获取数据失败')
                   }
                 })
               } else {
@@ -213,9 +218,9 @@ function createServer() {
             if (path.indexOf("SESSIONKEY_") != -1) {
               const content = fs.readFileSync(path, 'utf-8')
               csend(getbuff(CONF.CODE_IMTSIK, content), res => {
-                if (res === CONF.DEVICE_POK) {
+                if (-1 != res.indexOf(CONF.DEVICE_POK)) {
                   showMessageBox(mainWin, "更新成功")
-                } else if (res === CONF.DEVICE_PERROR) {
+                } else if (-1 != res.indexOf(CONF.DEVICE_PERROR)) {
                   showMessageBox(mainWin, "更新失败")
                 } else {
                   showMessageBox(mainWin, "更新失败, 可检查或重启设备之后尝试")
@@ -234,17 +239,22 @@ function createServer() {
           if (!res.canceled) {
             savePath = res.filePaths[0] + "\\"
             csend(getbuff(CONF.CODE_EXPKEY), (res) => {
-              res = covering(res, "");
-              if (res.length === 64 * 2) {
-                exitsfile(res, "PUBLICKEY", deviceNumber, (err, file) => {
-                  if (err) {
-                    showMessageBox(mainWin, "导出失败")
-                  } else {
-                    showMessageBox(mainWin, "导出成功, 文件路径:" + file)
-                  }
-                })
+              let rdata = split_res(res)
+              if (rdata) {
+                rdata = covering(rdata, "");
+                if (rdata.length === 64 * 2) {
+                  exitsfile(rdata, "PUBLICKEY", deviceNumber, (err, file) => {
+                    if (err) {
+                      showMessageBox(mainWin, "导出失败")
+                    } else {
+                      showMessageBox(mainWin, "导出成功, 文件路径:" + file)
+                    }
+                  })
+                } else {
+                  showMessageBox(mainWin, "导出失败, 请检查设备是否连接正确")
+                }
               } else {
-                showMessageBox(mainWin, "导出失败, 请检查设备是否连接正确")
+                showMessageBox(mainWin, '数据获取失败')
               }
             })
           }
@@ -255,9 +265,9 @@ function createServer() {
       //生成,更换会话密钥
       if (flag === CONF.CODE_GENSIK) {
         csend(getbuff(CONF.CODE_GENSIK, para.value), res => {
-          if (res === CONF.DEVICE_POK) {
+          if (-1 != res.indexOf(CONF.DEVICE_POK)) {
             showMessageBox(mainWin, "设备 " + para.value + " 会话密钥更新成功")
-          } else if (res === CONF.DEVICE_PERROR) {
+          } else if (-1 != res.indexOf(CONF.DEVICE_PERROR)) {
             showMessageBox(mainWin, "操作失败")
           } else {
             showMessageBox(mainWin, "请检查设备是否连接")
@@ -267,18 +277,24 @@ function createServer() {
 
       // 导出密钥表
       if (flag === CONF.CODE_EXPSIK) {
-        dialog.showOpenDialog(mainWin, { title: '选择要保存导出文件的目录', properties: ['openDirectory'] }).then(res => {
-          if (!res.canceled) {
-            savePath = res.filePaths[0] + "\\"
+        dialog.showOpenDialog(mainWin, { title: '选择要保存导出文件的目录', properties: ['openDirectory'] }).then(res1 => {
+          if (!res1.canceled) {
+            savePath = res1.filePaths[0] + "\\"
             csend(getbuff(CONF.CODE_EXPSIK, para.value), res => {
-              if (res !== CONF.DEVICE_PERROR) {
-                exitsfile(covering(res, ""), "SESSIONKEY", para.value, (err, file) => {
-                  if (err) {
-                    showMessageBox(mainWin, "导出失败")
-                  } else {
-                    showMessageBox(mainWin, "导出成功, 文件路径:" + file)
-                  }
-                })
+              if (-1 == res.indexOf(CONF.DEVICE_PERROR)) {
+                let rdata = split_res(res)
+                if (rdata) {
+                  exitsfile(covering(rdata, ""), "SESSIONKEY", para.value, (err, file) => {
+                    if (err) {
+                      showMessageBox(mainWin, "导出失败")
+                    } else {
+                      showMessageBox(mainWin, "导出成功, 文件路径:" + file)
+                    }
+                  })
+                } else {
+                  log.info('数据解析失败')
+                  showMessageBox(main, '数据获取失败')
+                }
               } else {
                 showMessageBox(mainWin, "导出失败, 请检查设备是否连接正确")
               }
@@ -291,15 +307,20 @@ function createServer() {
       if (flag === CONF.USER_VALI) {
         csend(getbuff(CONF.CODE_VERIUK, 'admin', para.value), (res) => {
           log.info(res)
-          if (res === CONF.DEVICE_PERROR) {
+          if (-1 != res.indexOf(CONF.DEVICE_PERROR)) {
             send({ flag: CONF.ERR_VAIL })
-          } else if (res === CONF.DEVICE_CENTER || res === CONF.DEVICE_SUBSET) {
-            wintype = res; //如果用户验证正确, 则返回网关类型
+          } else if (-1 != res.indexOf(CONF.DEVICE_CENTER) || -1 != res.indexOf(CONF.DEVICE_SUBSET)) {
+            if (-1 != res.indexOf(CONF.DEVICE_CENTER)) {
+              wintype = CONF.DEVICE_CENTER
+            } else {
+              wintype = CONF.DEVICE_SUBSET
+            }
+            log.info("The device type is " + wintype)
             //获取设备编号
             csend(getbuff(CONF.CODE_GDCNUM), (number) => {
-              deviceNumber = number
-              log.info("The number was successfully obtained, number " + number)
-              if (number) {
+              deviceNumber = split_res(number)
+              log.info("The device number was successfully obtained, number " + deviceNumber)
+              if (deviceNumber) {
                 send({ flag: CONF.SUS_VAIL })
               } else {
                 showMessageBox(loginWin, "位获取设备的编号")
@@ -320,15 +341,15 @@ function createServer() {
         if (para.value.length > 16) { showMessageBox(mainWin, '密码的长度不能大于16'); return }
 
         csend(getbuff(CONF.CODE_VERIUK, 'admin', para.oldValue), (res) => {
-          if (res === CONF.DEVICE_PERROR) {
+          if (-1 != res.indexOf(CONF.DEVICE_PERROR)) {
             showMessageBox(mainWin, "输入的旧密码不正确")
-          } else if (res === CONF.DEVICE_CENTER || res === CONF.DEVICE_SUBSET) {
+          } else if (-1 != res.indexOf(CONF.DEVICE_CENTER) || -1 != res.indexOf(CONF.DEVICE_SUBSET)) {
             csend(getbuff(CONF.CODE_UPUPAS, para.value), (res) => {
               log.info(res)
-              if (res === CONF.DEVICE_PERROR) {
+              if (-1 != res.indexOf(CONF.DEVICE_PERROR)) {
                 showMessageBox(mainWin, '密码修改失败, 请检查设备是否连接正确!')
                 send({ flag: CONF.CHANGE_PSS_ERROR })
-              } else if (res === CONF.DEVICE_POK) {
+              } else if (-1 != res.indexOf(CONF.DEVICE_POK)) {
                 send({ flag: CONF.CHANGE_PSS_OK })
               } else {
                 showMessageBox(mainWin, "设备连接失败")
@@ -359,14 +380,15 @@ function createServer() {
         }, 1000)
       }
 
-      //获取所有设备表和公钥信息
+      //获取所有设备编号和名称信息
       if (flag === CONF.GET_ALLKEY) {
         csend(getbuff(CONF.CODE_EXPMAI), (res) => {
-          if (res === CONF.DEVICE_PNO) {
+          if (-1 != res.indexOf(CONF.DEVICE_PERROR)) {
             send({ flag: CONF.GET_ALLKEY_FAILURE })
           } else {
-            packdata(res = covering(res, " ").split(" "), (res) => {
-              send({ flag: CONF.GET_ALLKEY_SUCCESS, value: JSON.stringify(res) })
+            let rdata = split_res(res)
+            packdata(covering(rdata, " ").split(" "), (res1) => {
+              send({ flag: CONF.GET_ALLKEY_SUCCESS, value: JSON.stringify(res1) })
             })
           }
         })
@@ -397,14 +419,14 @@ function createServer() {
             return;
           }
           csend(getbuff(CONF.CODE_CLAIMK, cvalue.number, content, cname), res => {
-            if (res == CONF.DEVICE_POK) {
+            if (-1 != res.indexOf(CONF.DEVICE_POK)) {
               if (cvalue.isupdate) {
                 showMessageBox(mainWin, "更新成功!")
               } else {
                 showMessageBox(mainWin, "添加成功!")
               }
               send({ flag: CONF.CODE_CLAIMK_SUCCESS })
-            } else if (res == CONF.DEVICE_PERROR) {
+            } else if (-1 != res.indexOf(CONF.DEVICE_PERROR)) {
               showMessageBox(mainWin, "操作失败!")
               send({ flag: CONF.CODE_CLAIMK_FAILURE })
             } else {
@@ -414,12 +436,12 @@ function createServer() {
         }
       }
 
-      //恢复出厂设置
+      //初始化
       if (flag === CONF.CODE_INITIF) {
         csend(getbuff(CONF.CODE_INITIF), (res) => {
-          if (res == CONF.DEVICE_POK) {
+          if (-1 != res.indexOf(CONF.DEVICE_POK)) {
             showMessageBox(loginWin, "初始化成功!")
-          } else if (res == CONF.DEVICE_PERROR) {
+          } else if (-1 != res.indexOf(CONF.DEVICE_PERROR)) {
             showMessageBox(loginWin, "初始化失败!")
           } else {
             showMessageBox(loginWin, "设备连接失败!")
@@ -480,6 +502,17 @@ function exitsfile(msg, per, number, success) {
   fs.writeFile(cfile, msg, 'utf-8', (res) => {
     success(res, cfile)
   })
+}
+
+function split_res(str) {
+  const start = str.indexOf(CONF.DEVICE_DATA_START)
+  const end = str.indexOf(CONF.DEVICE_DATA_END)
+
+  if (-1 != start && -1 != end) {
+    return str.slice(start + CONF.DEVICE_DATA_START.length, end).trim()
+  }
+  log.info("#ERR_DATA: " + str);
+  return '';
 }
 
 function getbuff(code, ...para) {
