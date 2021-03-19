@@ -1,6 +1,6 @@
 {
-  "name": "client",
-  "version": "1.1.0",
+  "name": "sfgw_client",
+  "version": "1.0.0",
   "description": "A minimal Electron application",
   "main": "main.js",
   "scripts": {
@@ -43,7 +43,9 @@
     "win": {
       "target": [
         "nsis"
-      ]
+      ],
+      "artifactName": "${productName}_v${version}.${ext}",
+      "icon": "./static/favicon.ico"
     },
     "nsis": {
       "oneClick": false,
@@ -60,6 +62,6 @@
     "tutorial",
     "demo"
   ],
-  "author": "GitHub",
+  "author": "南京十方网络科技有限公司",
   "license": "CC0-1.0"
 }

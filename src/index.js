@@ -37,7 +37,7 @@ function createWebscoket() {
 
                     //生成密钥
                     $("#genPkey").click(function () {
-                        comfireModal('更新当前设备身份密钥之后,需要在网关中心将当前设备的公钥更换成最新', () => { send({ flag: CONF.CODE_GENKEY }) })
+                        comfireModal('身份密钥更新后，需将身份密钥的公钥更新到密钥管理服务器，否则该安全网关将不能完成后续的密钥同步操作', () => { send({ flag: CONF.CODE_GENKEY }) })
                     })
 
                     $("#synchronouKey").click(() => {
@@ -317,8 +317,8 @@ function appendTable(type, data) {
             '      <div class="modal-body">' +
             '          <form>' +
             '          <div class="form-group">' +
-            '              <label for="exampleFormControlInput1">公司名称 <font color="#721c24" size="2">不能超过10个字符</font> </label>' +
-            '              <input type="email" id="companyName" class="form-control" id="exampleFormControlInput1" value="' + cname + '" placeholder="填写公司名称">' +
+            '              <label for="exampleFormControlInput1">单位名称 <font color="#721c24" size="2">不能超过10个字符</font> </label>' +
+            '              <input type="email" id="companyName" class="form-control" id="exampleFormControlInput1" value="' + cname + '" placeholder="填写单位名称">' +
             '          </div>' +
             '          <div class="form-group">' +
             '              <label for="exampleFormControlFile1">设备公钥</label>' +
@@ -340,7 +340,7 @@ function appendTable(type, data) {
             namevalue = namevalue.split(" ")
             $("#addkeymsg").find('font').remove()
             if (namevalue.length > 30 || namevalue.length == 0) {
-                $('<font color="red" size="2">' + (namevalue == 0 ? '请输入公司名称' : '不能超过10个字符') + '</font>').appendTo($("#addkeymsg"))
+                $('<font color="red" size="2">' + (namevalue == 0 ? '请输入单位名称' : '不能超过10个字符') + '</font>').appendTo($("#addkeymsg"))
                 return false
             } else {
                 $("#addkeymsg").find('font').remove()

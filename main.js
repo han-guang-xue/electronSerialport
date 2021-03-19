@@ -1,10 +1,10 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-02-26 11:37:36
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-03-19 10:14:44
+ * @LastEditors: hgx
  * @Description: In User Settings Edit
- * @FilePath: \shifang\main.js
+ * @FilePath: \electron-serialport-start\main.js
  */
 const log = require('electron-log')
 
@@ -27,8 +27,8 @@ const fs = require("fs");
 var loginWin
 var mainWin
 
-let pathConfig = "./resources/app/config.json"
-// let pathConfig = "./config.json"
+// let pathConfig = "./resources/app/config.json"
+let pathConfig = "./config.json"
 
 /** 读取配置文件 */
 var CONF;
@@ -215,7 +215,7 @@ function createServer() {
         dialog.showOpenDialog(mainWin, { title: '选择要导入的文件', properties: ['openFile'] }).then(res => {
           if (!res.canceled) {
             var path = res.filePaths[0]
-            if (path.indexOf("SESSIONKEY_") != -1) {
+            if (path.indexOf("DATAKEY_") != -1) {
               const content = fs.readFileSync(path, 'utf-8')
               csend(getbuff(CONF.CODE_IMTSIK, content), res => {
                 if (-1 != res.indexOf(CONF.DEVICE_POK)) {
@@ -284,7 +284,7 @@ function createServer() {
               if (-1 == res.indexOf(CONF.DEVICE_PERROR)) {
                 let rdata = split_res(res)
                 if (rdata) {
-                  exitsfile(covering(rdata, ""), "SESSIONKEY", para.value, (err, file) => {
+                  exitsfile(covering(rdata, ""), "DATAKEY", para.value, (err, file) => {
                     if (err) {
                       showMessageBox(mainWin, "导出失败")
                     } else {
