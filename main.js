@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-03-19 10:14:44
+ * @LastEditTime: 2021-03-26 18:48:59
  * @LastEditors: hgx
  * @Description: In User Settings Edit
  * @FilePath: \electron-serialport-start\main.js
@@ -21,14 +21,15 @@ log.info('process.versions.chrome' + process.versions.chrome)
 log.info('process.env.PROCESSOR_ARCHITECTURE' + process.env.PROCESSOR_ARCHITECTURE)
 
 const { app, BrowserWindow, dialog } = require('electron')
+
 const ws = require('nodejs-websocket')
 const SerialPort = require('serialport');
 const fs = require("fs");
 var loginWin
 var mainWin
 
-// let pathConfig = "./resources/app/config.json"
-let pathConfig = "./config.json"
+let pathConfig = "./resources/app/config.json"
+// let pathConfig = "./config.json"
 
 /** 读取配置文件 */
 var CONF;
@@ -54,7 +55,7 @@ function createLoginWin() {
     webPreferences: {
       nodeIntegration: false
     },
-    show: true
+    show: false
   })
   loginWin.removeMenu();
   loginWin.loadFile('./src/login.html')
@@ -127,40 +128,13 @@ var showMessageBox = function (win, message) {
 /** 创建 webscoket 服务, 监听串口通信 并发送客户端 */
 var webconn
 function createServer() {
-
   ws.createServer(function (conn) {
     webconn = conn;
     var send = function (data) { conn.sendText(JSON.stringify(data)) }
-    var csend = function (buff, success) {
-      serialPortData = ''
-      curPort.write(buff, function (err) {
-        setTimeout(() => {
-          var res = serialPortData.toString();
-          log.info(res)
-          success(res.trim())
-        }, 500)
-      })
-    }
     conn.on("text", function (str) {
       const para = JSON.parse(str)
       const flag = para.flag
       log.info(para)
-      if (flag === CONF.LIST_PORT) {
-        // 获取所有串口
-        log.info('列举串口设备')
-        var listPort = []
-        SerialPort.list().then(ports => {
-          log.info(ports)
-          ports.forEach(item => {
-            listPort.push({ path: item.path })
-          })
-          send({ flag: CONF.LIST_PORT, value: listPort })
-        }).catch(err => {
-          log.info(err)
-          log.info('列举串口失败')
-        })
-      }
-
       if (flag === CONF.SET_PORT) {
         //串口连接
         operPort(para.value,
@@ -266,7 +240,7 @@ function createServer() {
       if (flag === CONF.CODE_GENSIK) {
         csend(getbuff(CONF.CODE_GENSIK, para.value), res => {
           if (-1 != res.indexOf(CONF.DEVICE_POK)) {
-            showMessageBox(mainWin, "设备 " + para.value + " 会话密钥更新成功")
+            showMessageBox(mainWin, "设备 " + para.value + " 数据密钥更新成功")
           } else if (-1 != res.indexOf(CONF.DEVICE_PERROR)) {
             showMessageBox(mainWin, "操作失败")
           } else {
@@ -438,15 +412,27 @@ function createServer() {
 
       //初始化
       if (flag === CONF.CODE_INITIF) {
-        csend(getbuff(CONF.CODE_INITIF), (res) => {
-          if (-1 != res.indexOf(CONF.DEVICE_POK)) {
-            showMessageBox(loginWin, "初始化成功!")
-          } else if (-1 != res.indexOf(CONF.DEVICE_PERROR)) {
-            showMessageBox(loginWin, "初始化失败!")
-          } else {
-            showMessageBox(loginWin, "设备连接失败!")
+        dialog.showMessageBox(loginWin, {
+          type: 'info',
+          title: '提示信息',
+          message: "确定是否要初始化当前设备?",
+          buttons: ['取消', '确定']
+        }).then(res => {
+          console.log(res.response)
+          if (1 === res.response) {
+            // showMessageBox(loginWin,"防止误操作,代码已注释");
+            csend(getbuff(CONF.CODE_INITIF), (res) => {
+              if (-1 != res.indexOf(CONF.DEVICE_POK)) {
+                showMessageBox(loginWin, "初始化成功!")
+              } else if (-1 != res.indexOf(CONF.DEVICE_PERROR)) {
+                showMessageBox(loginWin, "初始化失败!")
+              } else {
+                showMessageBox(loginWin, "设备连接失败!")
+              }
+            })
           }
         })
+
       }
     })
     conn.on("close", function (coded, reason) {
@@ -460,6 +446,7 @@ var curPort;
 var serialPortData = ""     //用于接收并整合串口数据
 var buffer = new Array()
 function operPort(port, open, fail) {
+  log.log("create connet for com" + port)
   curPort = new SerialPort('com' + port, {
     baudRate: 115200,
     autoOpen: true,
@@ -470,29 +457,96 @@ function operPort(port, open, fail) {
   }, false)
 
   curPort.open(function () {
-    open();
+    log.log("open connet for com" + port)
     curPort.on('data', function (data) {
       data.forEach(item => { buffer.push(item) })
       serialPortData += data
-      // console.warn(serialPortData)
-    }).on('error', fail)
+      // console.warn(serialPortData)      
+    }).on('error', () => {
+      log.log("open connet com" + port + " fail")
+      fail()
+    })
+    open()
   })
 }
 
-/** 测试 */
-// operPort('3', () => {
-//   serialPortData = ''
-//   buffer = new Array()
-//   curPort.write("FFFD000201", 'utf-8', function (err, res) {
-//     setTimeout(() => {
-//       log.info(serialPortData.toString())
-//       log.info(buffer.toString('hex'))
-//     }, 500)
-//   })
-// }, () => { })
+/** 封装发送串口命令的数据包 */
+var csend = function (buff, success) {
+  serialPortData = ''
+  curPort.write(buff, function (err) {
+    setTimeout(() => {
+      var res = serialPortData.toString();
+      log.info(res)
+      success(res.trim())
+    }, 500)
+  })
+}
 
-//开启webscoket
-createServer()
+/** 循环遍历每个串口设备， 连接检测正确的设备 */
+function test_port(ports, csend, fail) {
+  ports.forEach(item => { console.log(item.path + ' ') })
+  if (!ports && ports.length == 0) {
+    // 没有检测到设备
+    fail()
+    return
+  }
+
+  var port_size = ports.length
+  var port_index = 0
+  //异步循环调用检测串口 
+  var test_conn_message = function () {
+    dialog.showMessageBox(loginWin, {
+      type: 'info',
+      title: '提示信息',
+      message: "没有检测到设备"
+    }).then(res => {
+      loginWin.close()
+    })
+  }
+
+  var test_conn = function () {
+    if (port_index >= port_size) {
+      // 没有检测到网关设备
+      test_conn_message()
+      return
+    }
+    const dvicnum = ports[port_index].path.slice(-1)
+    log.log("order " + port_index, "com" + dvicnum)
+    var test_conn_do = function () {
+      csend(getbuff(CONF.CODE_GDCNUM), (res) => {
+        if (res && res.indexOf("DATA_SRT") != -1) {
+          loginWin.show()
+          //开启webscoket
+          createServer()
+          return
+        }
+        port_index++
+        test_conn()
+      })
+    }
+    operPort(dvicnum, test_conn_do, () => {
+      port_index++
+      test_conn()
+    })
+  }
+  test_conn()
+}
+
+
+/** 检测串口设备 */
+SerialPort.list().then(ports => {
+  //循环链接每一台设备 并判断是那一台是当前设备
+  test_port(ports, csend, () => {
+    loginWin.hide()
+    showMessageBox(loginWin, "没有检测到设备")
+    loginWin.close()
+  })
+}).catch(err => {
+  log.info(err)
+  log.info('列举串口失败')
+})
+
+
 var savePath
 function exitsfile(msg, per, number, success) {
   var date = new Date()
@@ -529,6 +583,8 @@ function getbuff(code, ...para) {
     flag = '00' + len
   } else if (len < 1000) {
     flag = '0' + len
+  } else {
+    flag = len
   }
   log.info(code + flag + val)
   return code + flag + val

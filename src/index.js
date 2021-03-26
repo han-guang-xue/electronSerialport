@@ -244,7 +244,7 @@ function appendTable(type, data) {
                 '    <td class="number">' + item.number + '</td>' +
                 '    <td>' + comname + '</td>' +
                 '    <td>' +
-                '    <button type="button" class="btn btn-link sf-button siskey_table genSissionKey" style="padding: 0" title="生成/更换会话密钥"' +
+                '    <button type="button" class="btn btn-link sf-button siskey_table genSissionKey" style="padding: 0" title="更新数据密钥"' +
                 '        data-toggle="tooltip" data-placement="top">' +
                 '        <svg t="1611662008375" class="icon" viewBox="0 0 1024 1024" version="1.1"' +
                 '        xmlns="http://www.w3.org/2000/svg" p-id="3094" width="20" height="20">' +
@@ -268,7 +268,7 @@ function appendTable(type, data) {
                 '            p-id="3176" fill="#1296db"></path>' +
                 '        </svg>' +
                 '    </button>' +
-                '    <button type="button" class="btn btn-link sf-button siskey_table siskey_table_btn3 updatekey" cname="' + comname + '" style="padding: 0" title="更换公钥"' +
+                '    <button type="button" class="btn btn-link sf-button siskey_table siskey_table_btn3 updatekey" cname="' + comname + '" style="padding: 0" title="更新公钥"' +
                 '        data-toggle="tooltip" data-placement="top">' +
                 '        <svg t="1611662237096" class="icon" viewBox="0 0 1024 1024" version="1.1"' +
                 '        xmlns="http://www.w3.org/2000/svg" p-id="6210" width="20" height="20">' +
@@ -285,7 +285,7 @@ function appendTable(type, data) {
         //生成,更换会话密钥
         $(".genSissionKey").click(function () {
             let number = $(this).parent().parent().find(".number").text();
-            comfireModal('更换设备' + number + '会话密钥之后,必须对每个设备进行同步操作,否则当前设备会与其它设备不能通信', () => {
+            comfireModal('更换设备数据密钥之后,必须对每个设备进行同步操作,否则当前设备会与其它设备不能通信', () => {
                 send({ flag: CONF.CODE_GENSIK, value: number })
             })
         })
@@ -309,7 +309,7 @@ function appendTable(type, data) {
             '  <div class="modal-dialog">' +
             '      <div class="modal-content">' +
             '      <div class="modal-header">' +
-            '          <h5 class="modal-title" id="addkeymsg">' + (isupdate ? "更新设备" : "添加设备") + '   </h5>' +
+            '          <h5 class="modal-title" id="addkeymsg" style="font-size:20px;">' + (isupdate ? "更换设备身份密钥" : "添加设备") + '   </h5>' +
             '          <button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
             '          <span aria-hidden="true">&times;</span>' +
             '          </button>' +
@@ -391,6 +391,7 @@ function comfireModal(msg, success) {
         '    <div class="modal-dialog">' +
         '        <div class="modal-content alert alert-danger ">' +
         '            <div class="modal-header">' +
+        '               <h3 class="modal-title" style="font-size:20px">注意</h3>' +
         '                <button type="button" class="close" data-dismiss="modal" aria-label="Close">' +
         '                    <span aria-hidden="true">&times;</span>' +
         '                </button>' +

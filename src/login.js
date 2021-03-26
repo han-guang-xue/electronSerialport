@@ -1,17 +1,20 @@
 /*
  * @Author: your name
  * @Date: 2021-02-02 10:47:38
- * @LastEditTime: 2021-02-22 14:59:27
- * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-03-22 14:44:24
+ * @LastEditors: hgx
  * @Description: In User Settings Edit
- * @FilePath: \electron-serialport-start\login.js
+ * @FilePath: \electron-serialport-start\src\login.js
  */
 var first = 0;
 var ws;
+var flag = false;
 function send(data) {
     ws.send(JSON.stringify(data))
 }
 function createWebscoket() {
+    if (flag) { return }
+    flag = true
     ws = new WebSocket('ws://localhost:' + CONF.SCOKET_PORT);
     ws.onopen = function (e) {
         console.log('客户端与服务器的连接已经打开! ');
@@ -90,15 +93,15 @@ function appendPort(ports) {
 function appendLogin() {
     var init = "<a id='updateKey' style='font-size:10px;color:blue'>初始化设备</a>"
     $(".lg_list").remove();
-    $(".lg_main").append($('<form id="lg_loging" class="lg_list">' +
+    $(".lg_main").append($('<div id="lg_loging" class="lg_list">' +
         '    <div id="loggin_message"> ' + init + '  </div>' +
         '    <div class="form-group">' +
         '        <label for="recipient-name" class="col-form-label">密码:</label>' +
         '        <input  id="password" type="password" autofocus="autofocus" class="form-control logging-input" id="loggin_password"' +
         '            placeholder="请输入密码" />' +
         '    </div>' +
-        '    <div class="form-group" style="margin-top:40px;"><button id="loggin" type="button" class="btn btn-primary btn-block">登录</button></div>' +
-        '</form> '))
+        '    <div class="form-group" style="margin-top:40px;"><button id="loggin" type="button" onsubmit="return false" class="btn btn-primary btn-block">登录</button></div>' +
+        '</div> '))
 
     $("#updateKey").click(res => {
         send({ flag: CONF.CODE_INITIF })
@@ -109,9 +112,17 @@ function appendLogin() {
     })
 
     $("#loggin").click(() => {
-        //认证密码长度
         send({ flag: CONF.USER_VALI, value: $("#password").val() })
     })
+
+    document.onkeydown = function (event) {
+        var e = event || window.event || arguments.callee.caller.arguments[0];
+        if (e && e.key == "Enter") { // 按 Esc
+            //要做的事情
+            $("#loggin").addClass("")
+            send({ flag: CONF.USER_VALI, value: $("#password").val() })
+        }
+    }
 }
 
 var CONF;
@@ -120,7 +131,11 @@ $(function () {
     $.getJSON('../config.json', function (data) {
         CONF = data;
         console.log(CONF)
+
+        appendLogin();
         //创建webscoket
         createWebscoket();
     })
+
+
 })
