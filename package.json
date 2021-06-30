@@ -7,6 +7,7 @@
     "start": "electron .",
     "rebuild": "electron-rebuild -f -w serialport",
     "builder": "electron-builder --win --x64",
+    "builder_win32": "electron-builder --win --ia32",
     "packager": "electron-packager . --electron-version=10.1.1 --out=./out --download.mirrorOptions.mirror=https://npm.taobao.org/mirrors/electron/",
     "postinstall": "electron-builder install-app-deps",
     "more": "cnpm install && npm run rebuild && npm run builder"
@@ -31,7 +32,7 @@
     "electron-log": "4.3.0"
   },
   "build": {
-    "directories": {"output":"E:\\YCXGIT\\building\\build17"},
+    "directories": {"output":"E:\\YCXGIT\\building\\build64"},
     "asar":false,
     "buildDependenciesFromSource":true,
     "appId": "com.vasen.serialport",

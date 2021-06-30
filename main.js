@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-01-21 18:24:25
- * @LastEditTime: 2021-03-26 18:48:59
+ * @LastEditTime: 2021-06-21 11:56:41
  * @LastEditors: hgx
  * @Description: In User Settings Edit
  * @FilePath: \electron-serialport-start\main.js
@@ -28,8 +28,8 @@ const fs = require("fs");
 var loginWin
 var mainWin
 
-let pathConfig = "./resources/app/config.json"
-// let pathConfig = "./config.json"
+// let pathConfig = "./resources/app/config.json"
+let pathConfig = "./config.json"
 
 /** 读取配置文件 */
 var CONF;
@@ -510,7 +510,7 @@ function test_port(ports, csend, fail) {
       test_conn_message()
       return
     }
-    const dvicnum = ports[port_index].path.slice(-1)
+    const dvicnum = ports[port_index].path.slice(3)
     log.log("order " + port_index, "com" + dvicnum)
     var test_conn_do = function () {
       csend(getbuff(CONF.CODE_GDCNUM), (res) => {
